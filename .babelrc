@@ -1,12 +1,11 @@
 {
   "presets": [
-    "es2016-node5",
-    "react"
+    "es2015",
   ],
   "plugins": [
     "transform-class-properties",
     "transform-async-to-generator",
     "transform-function-bind",
-    "transform-runtime"
+    "transform-flow-strip-types"
   ]
 }

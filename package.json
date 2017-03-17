@@ -2,9 +2,9 @@
   "name": "threesixty-js-sdk",
   "version": "0.1.0",
   "description": "JavaScript Development Kit for 360Player public APIs.",
-  "main": "index.js",
+  "main": "./dist/threesixty.js",
   "author": "360Player.com",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
     "compile": "babel -d dist/ src/"
@@ -13,15 +13,15 @@
     "babel-jest": "^19.0.0",
     "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-function-bind": "^6.22.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-es2016-node5": "^1.1.2",
+    "babel-preset-es2015": "^6.24.0",
     "jest": "^19.0.2"
   },
   "jest": {
     "testRegex": "/.*\\.js$",
-    "testPathDirs": [
-      "./tests"
+    "roots": [
+      "./test"
     ]
   }
 }
