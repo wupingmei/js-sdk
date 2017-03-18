@@ -1,87 +1,185 @@
 /* @flow */
 
-/**
- *	@const string API_V1
- */
-export const API_V1 = 'v1';
+/* @dependencies */
+import {API_ENDPOINT_URL} from './constants';
+
 
 /**
- *	@const array API_AVAILABLE_VERSIONS
+ *	@private symbol clientApiVersion
  */
-const API_AVAILABLE_VERSIONS = [ API_V1 ];
+let clientApiVersion = Symbol();
 
 /**
- *	@const string API_DEFAULT_VERSION
+ *	@private symbol clientApiKey
  */
-const API_DEFAULT_VERSION = API_V1;
+let clientApiKey = Symbol();
 
 /**
- *	@const string API_ENDPOINT_URL
+ *	@private symbol clientApiToken
  */
-export const API_ENDPOINT_URL = 'https://api.360player.com'
+let clientApiToken = Symbol();
 
 /**
- *	@private symbol apiVersion
+ *	@private symbol sandboxFixtures
  */
-let apiVersion = Symbol();
+let sandboxFixtures = Symbol();
 
 /**
- *	@private symbol apiKey
+ *	@type RequestHeaders
+ *	Key, value map of request headers.
  */
-let apiKey = Symbol();
+type RequestHeaders = { [key : string] : string }
 
 /**
- *	Core class, handles initialization of API interaction.
+ *	ThreeSixtyInterface
  *
- *	@property string version
+ *	Handles interaction with public 360Player APIs. 
  */
-export default class ThreeSixty {
+export default class ThreeSixtyInterface {
+
+	/**
+ 	 *	@property boolean isConnected
+	 */
+	isConnected : boolean
 	
 	/**
-	 *	Sets API version and API key.
+ 	 *	@property boolean isSandboxed
+	 */
+	isSandboxed : boolean
+
+	/**
+	 *	@static object defaultRequestHeaders
+	 */
+	static defaultRequestHeaders : RequestHeaders = {
+		'Content-Type': 'application/json'
+	}
+
+	/**
+	 *	@constructor
+	 *
+	 *	Builds up initialization default values.
 	 *
 	 *	@param string apiVersion
-	 *	@param string clientApiKey
+	 *	@param string apiKey
 	 *
 	 *	@return void
 	 */
-	constructor(clientApiVersion : string, clientApiKey : string) : void {
-		if (API_AVAILABLE_VERSIONS.includes(clientApiVersion) === true) {
-			this[apiVersion] = clientApiVersion;
-		} else {
-			this[apiVersion] = API_DEFAULT_VERSION
-		}
-		
-		this[apiKey] = clientApiKey;
+	constructor(apiVersion : string, apiKey : string) : void {
+		this[clientApiVersion] = apiVersion;
+		this[clientApiKey] = apiKey;
+		this[clientApiToken] = null;
+		this.isConnected = false;
+		this.isSandboxed = false;
+	}
+
+	/**
+	 *	sandboxed
+	 *
+	 *	Sets sandboxed mode, regardless of previous mode.
+	 *
+	 *	@return void
+	 */
+	sandboxed() : void {
+		this.isSandboxed = true;
+		this[sandboxFixtures] = null;
+	}
+
+	/**
+	 *	Sets fixtures used in sandbox mode. Is required if sandbox mode is active.
+	 *
+ 	 *	@param object requestFixtures
+	 *
+	 *	@return void
+	 */
+	fixtures(requestFixtures : Object) : void {
+		this[sandboxFixtures] = requestFixtures;
+	}
+
+	/**
+	 *	@propertyGetter apiVersion
+	 *
+	 *	@return string
+	 */
+	get apiVersion() : string {
+		return this[clientApiVersion];
 	}
 	
 	/**
-	 *	Returns current version.
-	 *	@propertyGetter version
+	 *	@propertyGetter clientToken
 	 *
-	 *	@return string
+	 *	@return string|null
 	 */
-	get version() : string {
-		return this[apiVersion];
+	get clientToken() : ?string {
+		return this[clientApiToken];
 	}
 
 	/**
-	 *	Returns instance API key.
-	 *	@propertyGetter apiKey
+	 *	@async request
 	 *
-	 *	@return string 
+	 *	Attempts to make a new request to endpoint, if sandbox mode is active and fixtures are present, a resolved promise is returned.
+	 *
+	 *	@param string requestMethod
+	 *	@param string endpointUrl
+	 *	@param object|null payload
+	 *	@param object|null additionalHeaders
+	 *
+	 *	@return Promise
 	 */
-	get apiKey() : string {
-		return this[apiKey]
+	async request(requestMethod : string, endpointUrl : string, payload : ?Object, additionalHeaders : ?Object) : Promise<any> {
+		let body = JSON.stringify(payload)
+		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
+			'X-API-Key': this[clientApiKey]
+		});
+		
+		if ( this.isSandboxed ) {
+			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
+			
+			if (this[sandboxFixtures] === null) {
+				throw Error("Sandbox mode requires fixtures to be set.");
+			}
+			
+			if (this[sandboxFixtures].hasOwnProperty(fixtureKey) === false) {
+				throw Error(`Fixture for request ${fixtureKey} not found.`);
+			}
+			
+			let fixture = this[sandboxFixtures][fixtureKey];
+			
+			return new Promise((resolve, reject) => {
+				resolve({
+					json: () => fixture,
+					text: () => JSON.stringify(fixture)
+				})
+			});
+		}
+		
+		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, {
+			body, headers, requestMethod: requestMethod.toUpperCase()
+		});
 	}
 
 	/**
-	 *	Returns resolved endpoint URL.
+	 *	@async connect
 	 *
-	 *	@return string
+	 *	Attempts to connect to authentication endpoint.
+	 *
+ 	 *	@param string username
+	 *	@param string password
+	 *
+	 *	@return boolean
 	 */
-	get endpointUrl() : string {
-		return `${API_ENDPOINT_URL}/${this.version}/`;
+	async connect(username : string, password : string) : boolean {	
+		let response = await this.request('post', 'auth', { username, password });
+		let data = await response.json();
+	
+		if ( data && data.token ) {
+			this.isConnected = true;
+			this[clientApiToken] = data.token;
+		} else {
+			this.isConnected = false;
+			this[clientApiToken] = null;
+		}
+	
+		return this.isConnected;
 	}
 
 }

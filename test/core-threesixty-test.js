@@ -1,9 +1,12 @@
-import ThreeSixty, { API_V1, API_ENDPOINT_URL } from '../src/threesixty'
+/* @dependencies */
+import fixtures from '../fixtures'
+import ThreeSixty from '../src/threesixty'
+import { API_V1, API_ENDPOINT_URL } from '../src/constants'
 
 /**
  *	@const string clientApiKey
  */
-const clientApiKey = '360-js-sdk-api-v1-key';
+const clientApiKey = '360JSSDK-T3ST-SNDBX-MODE';
 
 describe('ThreeSixty', () => {
 
@@ -11,18 +14,17 @@ describe('ThreeSixty', () => {
 
 	beforeAll(() => {
 		api = new ThreeSixty(API_V1, clientApiKey);
+		api.sandboxed();
+		api.fixtures(fixtures);
 	})
 
 	it('correctly sets API version', () => {
-		expect(api.version).toEqual(API_V1);
+		expect(api.apiVersion).toEqual(API_V1);
 	});
 	
-	it('correctly sets API key', () => {
-		expect(api.apiKey).toEqual(clientApiKey)
-	});
-
-	it('returns versioned API endpoint URL', () => {
-		expect(api.endpointUrl).toEqual(`${API_ENDPOINT_URL}/${api.version}/`);
+	it('connects with valid credentials', async () => {
+		let connected = await api.connect('test@360player.com', 'Sup3RzeKuR3_PwD!@pl4inTxT');
+		expect(connected).toBe(true)
 	});
 
 });

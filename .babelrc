@@ -6,6 +6,12 @@
     "transform-class-properties",
     "transform-async-to-generator",
     "transform-function-bind",
-    "transform-flow-strip-types"
+    "transform-flow-strip-types",
+    [
+      "transform-runtime", {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ]
   ]
 }
