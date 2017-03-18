@@ -1,7 +1,8 @@
 /* @flow */
 
 /* @dependencies */
-import {API_ENDPOINT_URL} from './constants';
+import { API_ENDPOINT_URL } from './constants'
+import EventEmitter from './event/emitter'
 
 
 /**
@@ -37,7 +38,7 @@ type RequestHeaders = { [key : string] : string }
  *
  *	Handles interaction with public 360Player APIs. 
  */
-export default class ThreeSixtyInterface {
+export default class ThreeSixtyInterface extends EventEmitter {
 
 	/**
  	 *	@property boolean isConnected
@@ -67,6 +68,8 @@ export default class ThreeSixtyInterface {
 	 *	@return void
 	 */
 	constructor(apiVersion : string, apiKey : string) : void {
+		super();
+		
 		this.isConnected = false;
 		this.isSandboxed = false;
 
@@ -136,9 +139,13 @@ export default class ThreeSixtyInterface {
 	 *	@param object|null payload
 	 *	@param object|null additionalHeaders
 	 *
+	 *	@emits 'request', 'requested'
+	 *
 	 *	@return Promise
 	 */
 	async request(requestMethod : string, endpointUrl : string, payload : ?Object, additionalHeaders : ?Object) : Promise<any> {
+		this.emit('request');
+		
 		let body = JSON.stringify(payload)
 		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
 			// @FLOWFIXME
@@ -161,6 +168,7 @@ export default class ThreeSixtyInterface {
 			let fixture = this[sandboxFixtures][fixtureKey];
 			
 			return new Promise((resolve, reject) => {
+				this.emit('requested');
 				resolve({
 					json: () => fixture,
 					text: () => JSON.stringify(fixture)
@@ -170,6 +178,9 @@ export default class ThreeSixtyInterface {
 		
 		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, {
 			body, headers, requestMethod: requestMethod.toUpperCase()
+		}).then(() => {
+			this.emit('requested')
+			return this;
 		});
 	}
 
@@ -181,19 +192,25 @@ export default class ThreeSixtyInterface {
  	 *	@param string username
 	 *	@param string password
 	 *
+	 *	@emits 'connect', 'connected', 'disconnected'
+	 *
 	 *	@return Promise
 	 */
-	async connect(username : string, password : string) : Promise<any> {	
+	async connect(username : string, password : string) : Promise<any> {
+		this.emit('connect');
+		
 		let response = await this.request('post', 'auth', { username, password });
 		let data = await response.json();
 	
 		if ( data && data.token ) {
 			this.isConnected = true;
+			this.emit('connected');
 			
 			// @FLOWFIXME
 			this[clientApiToken] = data.token;
 		} else {
 			this.isConnected = false;
+			this.emit('disconnected');
 			
 			// @FLOWFIXME
 			this[clientApiToken] = null;
