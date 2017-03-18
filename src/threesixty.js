@@ -165,9 +165,9 @@ export default class ThreeSixtyInterface {
  	 *	@param string username
 	 *	@param string password
 	 *
-	 *	@return boolean
+	 *	@return Promise
 	 */
-	async connect(username : string, password : string) : boolean {	
+	async connect(username : string, password : string) : Promise<any> {	
 		let response = await this.request('post', 'auth', { username, password });
 		let data = await response.json();
 	
@@ -179,7 +179,7 @@ export default class ThreeSixtyInterface {
 			this[clientApiToken] = null;
 		}
 	
-		return this.isConnected;
+		return response;
 	}
 
 }

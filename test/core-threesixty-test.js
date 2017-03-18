@@ -23,8 +23,8 @@ describe('ThreeSixty', () => {
 	});
 	
 	it('connects with valid credentials', async () => {
-		let connected = await api.connect('test@360player.com', 'Sup3RzeKuR3_PwD!@pl4inTxT');
-		expect(connected).toBe(true)
+		await api.connect('test@360player.com', 'Sup3RzeKuR3_PwD!@pl4inTxT');
+		expect(api.isConnected).toBe(true)
 	});
 
 });
