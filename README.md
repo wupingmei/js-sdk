@@ -8,7 +8,7 @@ JavaScript Development Kit for 360Player public APIs.
 
 ### Linting
 
-Use [Jest](https://facebook.github.io/jest/) for code linting.
+Use [Flow](https://flowtype.org/) for code linting.
 
 ```sh
 yarn run lint
@@ -17,7 +17,7 @@ yarn run lint
 
 ### Testing
 
-Use [Flow](https://flowtype.org/) for unit and functional tests.
+Use [Jest](https://facebook.github.io/jest/) for unit and functional tests.
 
 ```sh
 yarn run test
