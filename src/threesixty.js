@@ -30,6 +30,8 @@ let sandboxFixtures = Symbol();
  */
 type RequestHeaders = { [key : string] : string }
 
+/** @NOTE There's an open issue with computed properties and Flow - https://github.com/facebook/flow/issues/252 */
+
 /**
  *	ThreeSixtyInterface
  *
@@ -65,11 +67,17 @@ export default class ThreeSixtyInterface {
 	 *	@return void
 	 */
 	constructor(apiVersion : string, apiKey : string) : void {
-		this[clientApiVersion] = apiVersion;
-		this[clientApiKey] = apiKey;
-		this[clientApiToken] = null;
 		this.isConnected = false;
 		this.isSandboxed = false;
+
+		// @FLOWFIXME
+		this[clientApiVersion] = apiVersion;
+		
+		// @FLOWFIXME
+		this[clientApiKey] = apiKey;
+		
+		// @FLOWFIXME
+		this[clientApiToken] = null;
 	}
 
 	/**
@@ -81,6 +89,8 @@ export default class ThreeSixtyInterface {
 	 */
 	sandboxed() : void {
 		this.isSandboxed = true;
+		
+		// @FLOWFIXME
 		this[sandboxFixtures] = null;
 	}
 
@@ -92,6 +102,7 @@ export default class ThreeSixtyInterface {
 	 *	@return void
 	 */
 	fixtures(requestFixtures : Object) : void {
+		// @FLOWFIXME
 		this[sandboxFixtures] = requestFixtures;
 	}
 
@@ -101,6 +112,7 @@ export default class ThreeSixtyInterface {
 	 *	@return string
 	 */
 	get apiVersion() : string {
+		// @FLOWFIXME
 		return this[clientApiVersion];
 	}
 	
@@ -110,6 +122,7 @@ export default class ThreeSixtyInterface {
 	 *	@return string|null
 	 */
 	get clientToken() : ?string {
+		// @FLOWFIXME
 		return this[clientApiToken];
 	}
 
@@ -128,12 +141,14 @@ export default class ThreeSixtyInterface {
 	async request(requestMethod : string, endpointUrl : string, payload : ?Object, additionalHeaders : ?Object) : Promise<any> {
 		let body = JSON.stringify(payload)
 		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
+			// @FLOWFIXME
 			'X-API-Key': this[clientApiKey]
 		});
 		
 		if ( this.isSandboxed ) {
 			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
 			
+			// @FLOWFIXME
 			if (this[sandboxFixtures] === null) {
 				throw Error("Sandbox mode requires fixtures to be set.");
 			}
@@ -142,6 +157,7 @@ export default class ThreeSixtyInterface {
 				throw Error(`Fixture for request ${fixtureKey} not found.`);
 			}
 			
+			// @FLOWFIXME
 			let fixture = this[sandboxFixtures][fixtureKey];
 			
 			return new Promise((resolve, reject) => {
@@ -173,9 +189,13 @@ export default class ThreeSixtyInterface {
 	
 		if ( data && data.token ) {
 			this.isConnected = true;
+			
+			// @FLOWFIXME
 			this[clientApiToken] = data.token;
 		} else {
 			this.isConnected = false;
+			
+			// @FLOWFIXME
 			this[clientApiToken] = null;
 		}
 	
