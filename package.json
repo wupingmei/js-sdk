@@ -8,9 +8,10 @@
   "scripts": {
     "lint": "flow check",
     "test": "jest",
-    "compile": "babel -d dist/ src/"
+    "compile": "./node_modules/.bin/babel -d dist/ src/"
   },
   "dependencies": {
+    "babel-cli": "^6.24.0",
     "babel-jest": "^19.0.0",
     "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
