@@ -26,6 +26,11 @@ let clientApiToken = Symbol();
 let sandboxFixtures = Symbol();
 
 /**
+ *	@private symbol sandboxMocks
+ */
+let sandboxMocks = Symbol();
+
+/**
  *	@type RequestHeaders
  *	Key, value map of request headers.
  */
@@ -88,25 +93,19 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	Sets sandboxed mode, regardless of previous mode.
 	 *
+	 *	@param object requestFixtures
+	 *	@param object requestMocks
+	 *
 	 *	@return void
 	 */
-	sandboxed() : void {
+	sandboxed(requestFixtures : Object, requestMocks : Object) : void {
 		this.isSandboxed = true;
 		
 		// @FLOWFIXME
-		this[sandboxFixtures] = null;
-	}
-
-	/**
-	 *	Sets fixtures used in sandbox mode. Is required if sandbox mode is active.
-	 *
- 	 *	@param object requestFixtures
-	 *
-	 *	@return void
-	 */
-	fixtures(requestFixtures : Object) : void {
-		// @FLOWFIXME
 		this[sandboxFixtures] = requestFixtures;
+		
+		// @FLOWFIXME
+		this[sandboxMocks] = requestMocks;
 	}
 
 	/**
@@ -163,11 +162,34 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			// @FLOWFIXME
 			let fixture = this[sandboxFixtures][fixtureKey];
 			
-			return new Promise((resolve, reject) => {
-				resolve({
-					json: () => fixture,
-					text: () => JSON.stringify(fixture)
-				})
+			// @FLOWFIXME
+			if (this[sandboxMocks] === null) {
+				throw Error("Sandbox mode requires mock functions to be set.");
+			}
+			
+			if (this[sandboxMocks].hasOwnProperty(fixtureKey) === false) {
+				throw Error(`Mock function for request ${fixtureKey} not found.`);
+			}
+			
+			// @FLOWFIXME
+			let mock = this[sandboxMocks][fixtureKey];
+			
+			return new Promise(( resolve, reject ) => {
+				if (mock(payload) === true) {
+					resolve({
+						ok: true,
+						json: () => fixture,
+						text: () => JSON.stringify(fixture)
+					})
+				} else {
+					let mockError = { error: "Mock function failed." };
+	
+					resolve({
+						ok: false,
+						json: () => mockError,
+						text: () => JSON.stringify(mockError)
+					})
+				}
 			});
 		}
 		
@@ -184,25 +206,23 @@ export default class ThreeSixtyInterface extends EventEmitter {
  	 *	@param string username
 	 *	@param string password
 	 *
-	 *	@emits 'connect', 'connected', 'disconnected'
+	 *	@emits 'connect', 'disconnect'
 	 *
 	 *	@return Promise
 	 */
-	async connect(username : string, password : string) : Promise<any> {
-		this.emit('connect');
-		
+	async connect(username : string, password : string) : Promise<any> {		
 		let response = await this.request('auth', 'post', { username, password });
 		let data = await response.json();
 	
-		if ( data && data.token ) {
+		if ( response.ok && data && data.token ) {
 			this.isConnected = true;
-			this.emit('connected');
+			await this.emit('connect');
 			
 			// @FLOWFIXME
 			this[clientApiToken] = data.token;
 		} else {
 			this.isConnected = false;
-			this.emit('disconnected');
+			await this.emit('disconnect');
 			
 			// @FLOWFIXME
 			this[clientApiToken] = null;
