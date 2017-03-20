@@ -134,14 +134,14 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	Attempts to make a new request to endpoint, if sandbox mode is active and fixtures are present, a resolved promise is returned.
 	 *
-	 *	@param string requestMethod
 	 *	@param string endpointUrl
+	 *	@param string requestMethod
 	 *	@param object|null payload
-	 *	@param object|null additionalHeaders
+	 *	@param RequestHeaders|null additionalHeaders
 	 *
 	 *	@return Promise
 	 */
-	async request(requestMethod : string, endpointUrl : string, payload : ?Object, additionalHeaders : ?Object) : Promise<any> {
+	async request(endpointUrl : string, requestMethod : string = "GET", payload : ?Object, additionalHeaders : ?RequestHeaders) : Promise<any> {
 		let body = JSON.stringify(payload)
 		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
 			// @FLOWFIXME
@@ -191,7 +191,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	async connect(username : string, password : string) : Promise<any> {
 		this.emit('connect');
 		
-		let response = await this.request('post', 'auth', { username, password });
+		let response = await this.request('auth', 'post', { username, password });
 		let data = await response.json();
 	
 		if ( data && data.token ) {
