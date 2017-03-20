@@ -139,13 +139,9 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	@param object|null payload
 	 *	@param object|null additionalHeaders
 	 *
-	 *	@emits 'request', 'requested'
-	 *
 	 *	@return Promise
 	 */
 	async request(requestMethod : string, endpointUrl : string, payload : ?Object, additionalHeaders : ?Object) : Promise<any> {
-		this.emit('request');
-		
 		let body = JSON.stringify(payload)
 		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
 			// @FLOWFIXME
@@ -168,7 +164,6 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			let fixture = this[sandboxFixtures][fixtureKey];
 			
 			return new Promise((resolve, reject) => {
-				this.emit('requested');
 				resolve({
 					json: () => fixture,
 					text: () => JSON.stringify(fixture)
@@ -178,9 +173,6 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, {
 			body, headers, requestMethod: requestMethod.toUpperCase()
-		}).then(() => {
-			this.emit('requested')
-			return this;
 		});
 	}
 
