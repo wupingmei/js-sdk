@@ -147,6 +147,15 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			'X-API-Key': this[clientApiKey]
 		});
 		
+		requestMethod = requestMethod.toUpperCase();
+		endpointUrl = `${endpointUrl.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
+		
+		// @NOTE Only pass Authorization header if applicable
+		if ( requestMethod === 'POST' && ( endpointUrl === 'auth' || endpointUrl === 'users' ) === false ) {
+			// @FLOWFIXME
+			headers['Authorization'] = `Bearer ${this[clientApiToken]}`;
+		}
+		
 		if ( this.isSandboxed ) {
 			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
 			
@@ -206,7 +215,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
  	 *	@param string username
 	 *	@param string password
 	 *
-	 *	@emits 'connect', 'disconnect'
+	 *	@emits 'connect'
 	 *
 	 *	@return Promise
 	 */
@@ -216,19 +225,48 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	
 		if ( response.ok && data && data.token ) {
 			this.isConnected = true;
+			this.useToken(data.token);
+			
 			await this.emit('connect');
-			
-			// @FLOWFIXME
-			this[clientApiToken] = data.token;
 		} else {
-			this.isConnected = false;
-			await this.emit('disconnect');
-			
-			// @FLOWFIXME
-			this[clientApiToken] = null;
+			await this.disconnect();
 		}
 	
 		return response;
+	}
+
+	/**
+	 *	Sets default null values for connection status and removes authentication token.
+	 *
+	 *	@emits 'disconnect'
+	 *
+	 *	@return void
+	 */
+	disconnect() : void {
+		// @FLOWFIXME
+		this[clientApiToken] = null;
+		
+		this.isConnected = false;
+		this.emit('disconnect');
+	}
+	
+	/**
+ 	 *	Sets JWT token for current instance. If user is not connected, connection status is set to true and event emits.
+	 *
+	 *	@param string apiToken
+	 *
+	 *	@emits 'connect'
+	 *
+	 *	@return void
+	 */
+	useToken(apiToken : string) : void {
+		// @FLOWFIXME
+		this[clientApiToken] = apiToken;
+		
+		if ( this.isConnected === false ) {
+			this.isConnected = true;
+			this.emit('connect');
+		}
 	}
 
 }

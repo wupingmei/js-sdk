@@ -7,13 +7,9 @@ describe('ThreeSixty', () => {
 
 	let api;
 
-	beforeAll(() => {
+	beforeEach(() => {
 		api = new ThreeSixty(API_V1, TEST_API_KEY);
 		api.sandboxed(fixtures, mocks);
-	})
-	
-	beforeEach(() => {
-		// @NOTE Reset emit mock after each test
 		api.emit = jest.fn();
 	})
 
@@ -41,6 +37,12 @@ describe('ThreeSixty', () => {
 		await api.connect(TEST_USERNAME, 'invalid_password');
 		expect(api.isConnected).toBe(false)
 		expect(api.emit).toBeCalledWith('disconnect');
+	});
+
+	it('connects without credentials using token instead', () => {
+		api.useToken('foo.bar.baz');
+		expect(api.isConnected).toBe(true)
+		expect(api.emit).toBeCalledWith('connect');
 	});
 
 });
