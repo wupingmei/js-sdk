@@ -6,6 +6,29 @@
 JavaScript Development Kit for 360Player public APIs.
 
 
+## Installing
+
+Add dependency to `package.json`, and run `yarn`.
+
+```json
+{
+	"dependencies": {
+		"threesixty-js-sdk": "git@github.com:360player/threesixty-js-sdk.git"
+	}
+}
+```
+
+_Or_ to install a specific version, see [releases](https://github.com/360player/threesixty-js-sdk/releases).
+
+```json
+{
+	"dependencies": {
+		"threesixty-js-sdk": "git@github.com:360player/threesixty-js-sdk.git#v0.1.0"
+	}
+}
+```
+
+
 ## Development
 
 ### Linting
