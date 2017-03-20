@@ -1,6 +1,6 @@
 /* @dependencies */
 import { API_V1 } from '../src/constants'
-import ThreeSixtyInterface from '../src/threesixty'
+import ThreeSixtyInterface from '../src'
 import { fixtures, mocks, TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD } from '../fixtures'
 
 describe('ThreeSixty', () => {

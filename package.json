@@ -2,14 +2,17 @@
   "name": "threesixty-js-sdk",
   "version": "0.1.0",
   "description": "JavaScript Development Kit for 360Player public APIs.",
-  "main": "./dist/threesixty.js",
+  "main": ".index.js",
   "author": "360Player.com",
   "license": "Apache-2.0",
   "scripts": {
-    "lint": "flow check",
-    "test": "jest",
-    "compile": "./node_modules/.bin/babel -d dist/ src/"
+    "lint": "./node_modules/.bin/flow check",
+    "test": "./node_modules/.bin/jest",
+    "compile": "rm -rf ./dist && mkdir dist && ./node_modules/.bin/babel -d dist/ src/"
   },
+  "files": [
+    "./dist/constants.js"
+  ],
   "dependencies": {
     "babel-cli": "^6.24.0",
     "babel-jest": "^19.0.0",

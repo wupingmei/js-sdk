@@ -8,11 +8,10 @@ All you need to do is `import` and initialize the class `ThreeSixtyInterface`.
 If you're using imports you can of course name the class to whatever you feel apropriate since it is a default export.
 
 ```javascript
-import { API_V1 } from '../src/constants'
-import ThreeSixtyInterface from `threesixty-js-sdk`
+import ThreeSixtyInterface from 'threesixty-js-sdk'
 
 const clientApiKey = 'your-client-api-key';
-const api = new ThreeSixtyInterface(API_V1, clientApiKey);
+const api = new ThreeSixtyInterface('v1', clientApiKey);
 ```
 
 
