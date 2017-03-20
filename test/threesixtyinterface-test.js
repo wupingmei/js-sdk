@@ -1,6 +1,6 @@
 /* @dependencies */
-import { API_V1, API_ENDPOINT_URL } from '../src/constants'
-import ThreeSixty from '../src/threesixty'
+import { API_V1 } from '../src/constants'
+import ThreeSixtyInterface from '../src/threesixty'
 import { fixtures, mocks, TEST_API_KEY, TEST_USERNAME, TEST_PASSWORD } from '../fixtures'
 
 describe('ThreeSixty', () => {
@@ -8,7 +8,7 @@ describe('ThreeSixty', () => {
 	let api;
 
 	beforeEach(() => {
-		api = new ThreeSixty(API_V1, TEST_API_KEY);
+		api = new ThreeSixtyInterface(API_V1, TEST_API_KEY);
 		api.sandboxed(fixtures, mocks);
 		api.emit = jest.fn();
 	})
