@@ -117,7 +117,7 @@ export default class Emitter {
 	 *
 	 *	@return int
 	 */
-	listenerCount(eventType : string) {
+	listenerCount(eventType : string) : number {
 		return this.getListeners(eventType).length;
 	}
 
@@ -131,7 +131,7 @@ export default class Emitter {
 	 *
 	 *	@return int
 	 */
-	getListenerPosition(eventType : string, eventListener : Function) {
+	getListenerPosition(eventType : string, eventListener : Function) : number {
 		return this.getListeners(eventType).indexOf(eventListener);
 	}
 
@@ -145,7 +145,7 @@ export default class Emitter {
 	 *
 	 *	@return bool
 	 */
-	hasListener(eventType : string, eventListener : Function) {
+	hasListener(eventType : string, eventListener : Function) : bool {
 		if (this.eventTypes.indexOf(eventType) >= 0) {
 			return (this.getListenerPosition(eventType, eventListener)>= 0);
 		}

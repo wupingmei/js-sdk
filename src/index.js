@@ -65,7 +65,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	/**
 	 *	@constructor
 	 *
-	 *	Builds up initialization default values.
+	 *	Sets required instance variables.
 	 *
 	 *	@param string apiVersion
 	 *	@param string apiKey
