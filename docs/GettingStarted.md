@@ -15,6 +15,15 @@ const api = new ThreeSixtyInterface('v1', clientApiKey);
 ```
 
 
+## Events
+
+| Event        | Description                                                     |
+|--------------|-----------------------------------------------------------------|
+| `connect`    | Fired upon successful connection (see `connect` and `useToken`) |
+| `disconnect` | Fired when connection closes.                                   |
+| `request`		 | Fired when a request is made, see `request`.                    |
+
+
 ## Authentication
 
 Almost every request requires authentication to be made, authentication token is automatically added to each consecutive request after authentication has been made and validated.

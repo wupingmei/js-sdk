@@ -156,6 +156,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			headers['Authorization'] = `Bearer ${this[clientApiToken]}`;
 		}
 		
+		this.emit('request');
+		
 		if ( this.isSandboxed ) {
 			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
 			
