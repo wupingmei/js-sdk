@@ -38,6 +38,8 @@ const message = `Version ${version}.`;
  */
 const deployCommand = [
 	'yarn run compile',
+	'touch ./dist/BUILD',
+	`echo "${(new Date()).toISOString()}" >> ./dist/BUILD`,
 	'git add .',
 	`git commit -m "Prepare version ${version}."`,
 	`npm version ${deployVersion} --force -m "${message}"`
