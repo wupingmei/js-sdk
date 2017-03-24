@@ -43,8 +43,6 @@ const deployCommand = [
 	`npm version ${deployVersion} --force -m "${message}"`
 ].join(' && ');
 
-console.log(deployCommand);
-
 /**
  *	@const process deploy
  */

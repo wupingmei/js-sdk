@@ -36,8 +36,8 @@ yarn run test
 
 ## Deploying
 
-The flag `--force` is used due to [this issue](https://github.com/npm/npm/issues/8620). You can specify `major`, `minor` and `patch` for the version.
+Make sure you have `babel-node` installed globally. Version can be either of `major`, `minor` or `patch`.
 
 ```sh
-npm version minor --force -m "Version 0.2.0"
+babel-node deploy <version>
 ```
