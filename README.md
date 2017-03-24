@@ -9,7 +9,7 @@ JavaScript Development Kit for 360Player public APIs.
 ## Installing
 
 ```sh
-yarn add git@github.com:360player/threesixty-js-sdk.git
+yarn add threesixty-js-sdk
 ```
 
 
@@ -31,7 +31,6 @@ Use [Jest](https://facebook.github.io/jest/) for unit and functional tests.
 ```sh
 yarn run test
 ```
-
 
 
 ## Deploying
