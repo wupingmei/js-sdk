@@ -9,7 +9,8 @@
     "lint": "./node_modules/.bin/flow check",
     "test": "./node_modules/.bin/jest",
     "compile": "rm -rf ./dist && mkdir dist && ./node_modules/.bin/babel -d dist/ src/",
-    "preversion": "yarn run lint && yarn run test && yarn run compile",
+    "prepublish": "yarn run compile",
+    "preversion": "yarn run lint && yarn run test",
     "version": "",
     "postversion": "git push && git push --tags && npm publish"
   },
