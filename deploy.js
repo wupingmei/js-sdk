@@ -40,7 +40,7 @@ const deployCommand = [
 	'yarn run compile',
 	'git add .',
 	`git commit -m "Prepare version ${version}."`,
-	`npm version ${deployVersion} --force -m ${message}`
+	`npm version ${deployVersion} --force -m "${message}"`
 ].join(' && ');
 
 console.log(deployCommand);
