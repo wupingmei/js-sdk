@@ -1,32 +1,63 @@
+/* @dependencies */
 import pkg from './package.json';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 
+/**
+ *	@const array argv
+ */
 const argv = process.argv.slice(2);
-const targetVersion = argv[0];
 
-// Increment version number (only used for commit message)
-let [ major, minor, patch ] = pkg.version.split('.');
-if (targetVersion === 'major') { major = parseInt(major) + 1 }
-if (targetVersion === 'minor') { minor = parseInt(minor) + 1 }
-if (targetVersion === 'patch') { patch = parseInt(patch) + 1 }
+/**
+ *	@const deployVersion string
+ */
+const deployVersion = argv[0];
 
-const newVersion = [ major, minor, patch ].join('.');
-const message = `Version ${newVersion}`;
+/**
+ *	@const deployVersions array
+ */
+const deployVersions = [ 'major', 'minor', 'patch' ];
 
-if ( ['major', 'minor', 'patch'].includes(targetVersion) ) {
-	exec(`npm version ${targetVersion} --force -m ${message}`, (err, stdout, stderr) => {
-		if (stdout !== null) {
-			console.log(stdout);
-		}
-		
-		if (stderr !== null) {
-			console.log(stderr);
-		}
-		
-		if (err !== null) {
-			console.log('Deploy failed!');
-		}
-	});
-} else {
-	console.log('Invalid version deploy.')
-}
+/**
+ *	@const string version
+ */
+const version = (() => {
+	let [ major, minor, patch ] = pkg.version.split('.');
+	if (deployVersion === 'major') { major = parseInt(major) + 1 }
+	if (deployVersion === 'minor') { minor = parseInt(minor) + 1 }
+	if (deployVersion === 'patch') { patch = parseInt(patch) + 1 }
+	return [ major, minor, patch ].join('.');
+})();
+
+/**
+ *	@const string message
+ */
+const message = `Version ${version}.`;
+
+/**
+ *	@const string deployCommand
+ */
+const deployCommand = [
+	'yarn run compile',
+	'git add .',
+	`git commit -m "Prepare version ${version}."`,
+	`npm version ${deployVersion} --force -m ${message}`
+].join(' && ');
+
+console.log(deployCommand);
+
+/**
+ *	@const process deploy
+ */
+const deploy = spawn(deployCommand, { shell : true });
+
+deploy.stdout.on('data', (data) => {
+	console.log(`${data}`);
+});
+
+deploy.stderr.on('data', (data) => {
+	console.log(`${data}`);
+});
+
+deploy.on('close', (code) => {
+	console.log(`Deploy script exited with code: ${code}`);
+});

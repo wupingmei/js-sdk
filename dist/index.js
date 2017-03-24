@@ -82,7 +82,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	/**
   *	@constructor
   *
-  *	Builds up initialization default values.
+  *	Sets required instance variables.
   *
   *	@param string apiVersion
   *	@param string apiKey
@@ -195,8 +195,10 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									headers['Authorization'] = 'Bearer ' + this[clientApiToken];
 								}
 
+								this.emit('request');
+
 								if (!this.isSandboxed) {
-									_context.next = 18;
+									_context.next = 19;
 									break;
 								}
 
@@ -205,21 +207,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxFixtures] === null)) {
-									_context.next = 9;
+									_context.next = 10;
 									break;
 								}
 
 								throw Error("Sandbox mode requires fixtures to be set.");
 
-							case 9:
+							case 10:
 								if (!(this[sandboxFixtures].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 11;
+									_context.next = 12;
 									break;
 								}
 
 								throw Error('Fixture for request ' + fixtureKey + ' not found.');
 
-							case 11:
+							case 12:
 
 								// @FLOWFIXME
 								fixture = this[sandboxFixtures][fixtureKey];
@@ -227,21 +229,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxMocks] === null)) {
-									_context.next = 14;
+									_context.next = 15;
 									break;
 								}
 
 								throw Error("Sandbox mode requires mock functions to be set.");
 
-							case 14:
+							case 15:
 								if (!(this[sandboxMocks].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 16;
+									_context.next = 17;
 									break;
 								}
 
 								throw Error('Mock function for request ' + fixtureKey + ' not found.');
 
-							case 16:
+							case 17:
 
 								// @FLOWFIXME
 								mock = this[sandboxMocks][fixtureKey];
@@ -271,12 +273,12 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									}
 								}));
 
-							case 18:
+							case 19:
 								return _context.abrupt('return', fetch(_constants.API_ENDPOINT_URL + '/' + this.apiVersion + '/' + endpointUrl, {
 									body: body, headers: headers, requestMethod: requestMethod.toUpperCase()
 								}));
 
-							case 19:
+							case 20:
 							case 'end':
 								return _context.stop();
 						}
