@@ -1,0 +1,16 @@
+# Directory cache files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Configs
+.travis.yml
+.flowconfig
+.editorconfig
+
+# Directories
+src
+test
+
+# Files
+deploy.js

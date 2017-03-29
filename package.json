@@ -29,7 +29,8 @@
     "babel-runtime": "^6.23.0",
     "flow-bin": "^0.42.0",
     "jest": "^19.0.2",
-    "node-fetch": "^1.6.3"
+    "node-fetch": "^1.6.3",
+    "weakmap-polyfill": "^2.0.0"
   },
   "jest": {
     "testRegex": "/.*\\.js$",
