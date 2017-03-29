@@ -13,11 +13,11 @@ type CookieObject = { [ key : string ] : string }
  *	@private
  *	Attempts to encode unencoded string using encodeURIComponent.
  *
- *	@param string unencodedString
+ *	@param any unencodedString
  *
  *	@return string
  */
-function encode(unencodedString : string) : string {
+function encode(unencodedString : any) : string {
 	try {
 		return encodeURIComponent(unencodedString);
 	} catch ( error ) {
@@ -29,11 +29,11 @@ function encode(unencodedString : string) : string {
  *	@private
  *	Attempts to decode encoded string using decodeURIComponent.
  *
- *	@param string encodedString
+ *	@param any encodedString
  *
  *	@return string
  */
-function decode(encodedString : string) : string {
+function decode(encodedString : any) : string {
 	try {
 		return decodeURIComponent(encodedString);
 	} catch ( error ) {
@@ -64,7 +64,7 @@ export class ObjectCookieJar {
 	get cookie() : string {
 		let cookieParts = [];
 		
-		for ( let [key, value] of Object.entries(this.jar) ) {
+		for ( let [ key, value ] of Object.entries(this.jar) ) {
 			cookieParts.push(`${encode(key)}=${encode(value)}`);
 		}
 		
@@ -91,8 +91,9 @@ export class ClientCookieJar {
 /**
  *	@private
  *	@const WeakMap cookieJar
+ *	@NOTE Cast WeakMap reference as Function since the Cookie class is static.
  */
-const cookieJar : WeakMap<Cookie, any> = new WeakMap();
+const cookieJar : WeakMap<Function, any> = new WeakMap();
 
 /**
  *	Cookie helper class.
@@ -120,9 +121,14 @@ export default class Cookie {
 	static parse(cookieString : string) : CookieObject {
 		let cookieObject : CookieObject = {};
 		
+		if ( cookieString === undefined ) {
+			return cookieObject;
+		}
+		
 		cookieString.replace(/([^\s,=]+)=([^,]+)(?=,|$)/g, (match, key, value) => {
 			cookieObject[key] = decode(value);
-		})
+			return value;
+		});
 		
 		return cookieObject;
 	}
@@ -142,7 +148,7 @@ export default class Cookie {
 		
 		let cookieParts = [ `${encode(name)}=${encode(value)}` ];
 		
-		for ( let [key, value] of Object.entries(cookieObject) ) {
+		for ( let [ key, value ] of Object.entries(cookieObject) ) {
 			cookieParts.push(`${encode(key)}=${encode(value)}`);
 		}
 		
@@ -159,7 +165,8 @@ export default class Cookie {
 	 *
 	 *	@return void
 	 */
-	static set(cookieIdentifier : string, cookieValue : string, cookieExpireDays : number = 7, additionalCookieOptions : Object = {}) : void {		
+	static set(cookieIdentifier : string, cookieValue : string, cookieExpireDays : number = 7, additionalCookieOptions : Object = {}) : void {
+		const jar : any = cookieJar.get(Cookie);
 		let expireDate = new Date(Date.now() + (cookieExpireDays * 24 * 60 * 60 * 1000)).toUTCString();
 		
 		if ( cookieExpireDays <= 0 ) {
@@ -172,7 +179,7 @@ export default class Cookie {
 			expire: expireDate
 		}, additionalCookieOptions));
 		
-		cookieJar.get(Cookie).cookie = cookieString;
+		jar.cookie = cookieString;
 	}
 	
 	/**
@@ -183,7 +190,8 @@ export default class Cookie {
 	 *	@return string|undefined
 	 */
 	static get(cookieIdentifier : string) : mixed {
-		const parsedCookie = Cookie.parse(cookieJar.get(Cookie).cookie);
+		const jar : any = cookieJar.get(Cookie);
+		const parsedCookie = Cookie.parse(jar.cookie);
 		return parsedCookie[cookieIdentifier];
 	}
 	
