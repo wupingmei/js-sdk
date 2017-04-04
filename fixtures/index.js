@@ -13,11 +13,6 @@ type FixtureMap = { [key : string] : Object }
 type MockMap = { [key : string] : Function }
 
 /**
- *	@const TEST_API_KEY string
- */
-export const TEST_API_KEY : string = '360JSSDK-T3ST-SNDBX-MODE'
-
-/**
  *	@const TEST_USERNAME string
  */
 export const TEST_USERNAME : string = 'test@360player.com'

@@ -12,11 +12,6 @@ import 'whatwg-fetch'
 let clientApiVersion = Symbol();
 
 /**
- *	@private symbol clientApiKey
- */
-let clientApiKey = Symbol();
-
-/**
  *	@private symbol clientApiToken
  */
 let clientApiToken = Symbol();
@@ -69,11 +64,10 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	Sets required instance variables.
 	 *
 	 *	@param string apiVersion
-	 *	@param string apiKey
 	 *
 	 *	@return void
 	 */
-	constructor(apiVersion : string, apiKey : string) : void {
+	constructor(apiVersion : string) : void {
 		super();
 		
 		this.isConnected = false;
@@ -81,9 +75,6 @@ export default class ThreeSixtyInterface extends EventEmitter {
 
 		// @FLOWFIXME
 		this[clientApiVersion] = apiVersion;
-		
-		// @FLOWFIXME
-		this[clientApiKey] = apiKey;
 		
 		// @FLOWFIXME
 		this[clientApiToken] = null;
@@ -141,12 +132,10 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return Promise
 	 */
-	async request(endpointUrl : string, requestMethod : string = "GET", payload : ?Object, additionalHeaders : ?RequestHeaders) : Promise<any> {
-		let body = JSON.stringify(payload)
-		let headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
-			// @FLOWFIXME
-			'X-API-Key': this[clientApiKey]
-		});
+	async request(endpointUrl : string, requestMethod : string = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}) : Promise<any> {
+		let body = JSON.stringify(payload);
+		requestMethod = requestMethod.toUpperCase();
+		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 		
 		requestMethod = requestMethod.toUpperCase();
 		endpointUrl = `${endpointUrl.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
@@ -205,9 +194,14 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			});
 		}
 		
-		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, {
-			body, headers, requestMethod: requestMethod.toUpperCase()
-		});
+		let requestOptions = { body, headers, requestMethod };
+		
+		// @NOTE Body is not allowed for HEAD and GET requests
+		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
+			delete requestOptions.body
+		}
+		
+		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, requestOptions);
 	}
 
 	/**
