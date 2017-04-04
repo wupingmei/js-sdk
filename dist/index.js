@@ -44,16 +44,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var clientApiVersion = Symbol();
 
 /**
- *	@private symbol clientApiKey
+ *	@private symbol clientApiToken
  */
 
 
 /* @dependencies */
-var clientApiKey = Symbol();
-
-/**
- *	@private symbol clientApiToken
- */
 var clientApiToken = Symbol();
 
 /**
@@ -87,7 +82,6 @@ var ThreeSixtyInterface = function (_EventEmitter) {
   *	Sets required instance variables.
   *
   *	@param string apiVersion
-  *	@param string apiKey
   *
   *	@return void
   */
@@ -96,7 +90,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	/**
  	 *	@property boolean isSandboxed
   */
-	function ThreeSixtyInterface(apiVersion, apiKey) {
+	function ThreeSixtyInterface(apiVersion) {
 		(0, _classCallCheck3.default)(this, ThreeSixtyInterface);
 
 		var _this = (0, _possibleConstructorReturn3.default)(this, (ThreeSixtyInterface.__proto__ || Object.getPrototypeOf(ThreeSixtyInterface)).call(this));
@@ -106,9 +100,6 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 		// @FLOWFIXME
 		_this[clientApiVersion] = apiVersion;
-
-		// @FLOWFIXME
-		_this[clientApiKey] = apiKey;
 
 		// @FLOWFIXME
 		_this[clientApiToken] = null;
@@ -174,18 +165,17 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 		value: function () {
 			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(endpointUrl) {
 				var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "GET";
-				var payload = arguments[2];
-				var additionalHeaders = arguments[3];
-				var body, headers, fixtureKey, fixture, mock;
+				var payload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+				var additionalHeaders = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+				var body, headers, fixtureKey, fixture, mock, requestOptions;
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
 						switch (_context.prev = _context.next) {
 							case 0:
 								body = JSON.stringify(payload);
-								headers = Object.assign(ThreeSixtyInterface.defaultRequestHeaders, {
-									// @FLOWFIXME
-									'X-API-Key': this[clientApiKey]
-								});
+
+								requestMethod = requestMethod.toUpperCase();
+								headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 
 
 								requestMethod = requestMethod.toUpperCase();
@@ -200,7 +190,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								this.emit('request');
 
 								if (!this.isSandboxed) {
-									_context.next = 19;
+									_context.next = 20;
 									break;
 								}
 
@@ -209,21 +199,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxFixtures] === null)) {
-									_context.next = 10;
+									_context.next = 11;
 									break;
 								}
 
 								throw Error("Sandbox mode requires fixtures to be set.");
 
-							case 10:
+							case 11:
 								if (!(this[sandboxFixtures].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 12;
+									_context.next = 13;
 									break;
 								}
 
 								throw Error('Fixture for request ' + fixtureKey + ' not found.');
 
-							case 12:
+							case 13:
 
 								// @FLOWFIXME
 								fixture = this[sandboxFixtures][fixtureKey];
@@ -231,21 +221,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxMocks] === null)) {
-									_context.next = 15;
+									_context.next = 16;
 									break;
 								}
 
 								throw Error("Sandbox mode requires mock functions to be set.");
 
-							case 15:
+							case 16:
 								if (!(this[sandboxMocks].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 17;
+									_context.next = 18;
 									break;
 								}
 
 								throw Error('Mock function for request ' + fixtureKey + ' not found.');
 
-							case 17:
+							case 18:
 
 								// @FLOWFIXME
 								mock = this[sandboxMocks][fixtureKey];
@@ -275,12 +265,18 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									}
 								}));
 
-							case 19:
-								return _context.abrupt('return', fetch(_constants.API_ENDPOINT_URL + '/' + this.apiVersion + '/' + endpointUrl, {
-									body: body, headers: headers, requestMethod: requestMethod.toUpperCase()
-								}));
-
 							case 20:
+								requestOptions = { body: body, headers: headers, requestMethod: requestMethod };
+
+								// @NOTE Body is not allowed for HEAD and GET requests
+
+								if (requestMethod === 'GET' || requestMethod === 'HEAD') {
+									delete requestOptions.body;
+								}
+
+								return _context.abrupt('return', fetch(_constants.API_ENDPOINT_URL + '/' + this.apiVersion + '/' + endpointUrl, requestOptions));
+
+							case 23:
 							case 'end':
 								return _context.stop();
 						}
@@ -358,7 +354,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee2, this);
 			}));
 
-			function connect(_x3, _x4) {
+			function connect(_x5, _x6) {
 				return _ref2.apply(this, arguments);
 			}
 
