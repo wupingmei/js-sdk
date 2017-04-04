@@ -34,19 +34,21 @@ var _emitter = require('./event/emitter');
 
 var _emitter2 = _interopRequireDefault(_emitter);
 
+require('whatwg-fetch');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *	@private symbol clientApiVersion
  */
-
-
-/* @dependencies */
 var clientApiVersion = Symbol();
 
 /**
  *	@private symbol clientApiKey
  */
+
+
+/* @dependencies */
 var clientApiKey = Symbol();
 
 /**
