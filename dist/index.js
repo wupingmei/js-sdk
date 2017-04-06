@@ -88,17 +88,22 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 
 	/**
- 	 *	@property boolean isSandboxed
+ 	 *	@property boolean inDebugMode
+  */
+
+
+	/**
+ 	 *	@property boolean isConnected
   */
 	function ThreeSixtyInterface(apiVersion) {
 		(0, _classCallCheck3.default)(this, ThreeSixtyInterface);
 
+		// @FLOWFIXME
 		var _this = (0, _possibleConstructorReturn3.default)(this, (ThreeSixtyInterface.__proto__ || Object.getPrototypeOf(ThreeSixtyInterface)).call(this));
 
 		_this.isConnected = false;
 		_this.isSandboxed = false;
-
-		// @FLOWFIXME
+		_this.inDebugMode = false;
 		_this[clientApiVersion] = apiVersion;
 
 		// @FLOWFIXME
@@ -107,8 +112,6 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	}
 
 	/**
-  *	sandboxed
-  *
   *	Sets sandboxed mode, regardless of previous mode.
   *
   *	@param object requestFixtures
@@ -124,7 +127,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 
 	/**
- 	 *	@property boolean isConnected
+ 	 *	@property boolean isSandboxed
   */
 
 
@@ -138,6 +141,44 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 			// @FLOWFIXME
 			this[sandboxMocks] = requestMocks;
+		}
+
+		/**
+   *	Sets debug mode which logs various things from class.
+   *
+  	 *	@return void
+   */
+
+	}, {
+		key: 'debugMode',
+		value: function debugMode() {
+			this.inDebugMode = true;
+		}
+
+		/**
+   *	Logs message if {@see ThreeSixtyInterface#inDebugMode} is true.
+   *
+   *	@param string logType
+   *	@param any logSource
+   *	@param any, ... additionalParameters
+   */
+
+	}, {
+		key: 'log',
+		value: function log(logType, logSource) {
+			if (this.inDebugMode === true && console !== undefined) {
+				for (var _len = arguments.length, additionalParameters = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+					additionalParameters[_key - 2] = arguments[_key];
+				}
+
+				if (additionalParameters.length > 0) {
+					var _console;
+
+					(_console = console)[logType].apply(_console, [logSource].concat(additionalParameters));
+				} else {
+					console[logType](logSource);
+				}
+			}
 		}
 
 		/**
@@ -190,7 +231,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								this.emit('request');
 
 								if (!this.isSandboxed) {
-									_context.next = 20;
+									_context.next = 21;
 									break;
 								}
 
@@ -239,6 +280,10 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 								// @FLOWFIXME
 								mock = this[sandboxMocks][fixtureKey];
+
+
+								this.log('debug', 'Requesting mocked "' + requestMethod + ' ' + endpointUrl + '"');
+
 								return _context.abrupt('return', new Promise(function (resolve, reject) {
 									if (mock(payload) === true) {
 										resolve({
@@ -265,7 +310,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									}
 								}));
 
-							case 20:
+							case 21:
 								requestOptions = { body: body, headers: headers, requestMethod: requestMethod };
 
 								// @NOTE Body is not allowed for HEAD and GET requests
@@ -274,9 +319,11 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									delete requestOptions.body;
 								}
 
+								this.log('debug', 'Requesting "' + requestMethod + ' ' + endpointUrl + '"', requestOptions);
+
 								return _context.abrupt('return', fetch(_constants.API_ENDPOINT_URL + '/' + this.apiVersion + '/' + endpointUrl, requestOptions));
 
-							case 23:
+							case 25:
 							case 'end':
 								return _context.stop();
 						}
@@ -377,6 +424,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 			this.isConnected = false;
 			this.emit('disconnect');
+			this.log('info', 'Disconnected');
 		}
 
 		/**
@@ -398,6 +446,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 			if (this.isConnected === false) {
 				this.isConnected = true;
 				this.emit('connect');
+				this.log('info', 'Connected');
 			}
 		}
 	}, {
