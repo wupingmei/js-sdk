@@ -36,19 +36,21 @@ var _emitter2 = _interopRequireDefault(_emitter);
 
 require('whatwg-fetch');
 
+require('object.entries');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *	@private symbol clientApiVersion
  */
+
+
+/* @dependencies */
 var clientApiVersion = Symbol();
 
 /**
  *	@private symbol clientApiToken
  */
-
-
-/* @dependencies */
 var clientApiToken = Symbol();
 
 /**
@@ -215,7 +217,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "GET";
 				var payload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 				var additionalHeaders = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-				var body, headers, fixtureKey, fixture, mock, mode, method, requestOptions;
+				var body, headers, fixtureKey, fixture, mock, mode, method, requestOptions, returnedPromise;
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
 						switch (_context.prev = _context.next) {
@@ -285,7 +287,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								mock = this[sandboxMocks][fixtureKey];
 
 
-								this.log('debug', 'Requesting mocked "' + requestMethod + ' ' + endpointUrl + '"');
+								this.log('debug', 'Requesting mocked "' + requestMethod + ' /' + this.apiVersion + '/' + endpointUrl + '"');
 
 								return _context.abrupt('return', new Promise(function (resolve, reject) {
 									if (mock(payload) === true) {
@@ -324,11 +326,17 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									delete requestOptions.body;
 								}
 
-								this.log('debug', 'Requesting "' + requestMethod + ' ' + endpointUrl + '"', requestOptions);
+								returnedPromise = fetch(this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl, requestOptions);
 
-								return _context.abrupt('return', fetch(this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl, requestOptions));
+								// @NOTE Do not expose body to log
 
-							case 25:
+								delete requestOptions.body;
+
+								this.log('debug', 'Requesting "' + requestMethod + ' /' + this.apiVersion + '/' + endpointUrl + '"', requestOptions);
+
+								return _context.abrupt('return', returnedPromise);
+
+							case 27:
 							case 'end':
 								return _context.stop();
 						}
