@@ -4,7 +4,7 @@
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
 import 'whatwg-fetch'
-import 'object-entries'
+import 'object.entries'
 
 
 /**
@@ -235,16 +235,15 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
 			delete requestOptions.body
 		}
+
+		const returnedPromise = fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`, requestOptions);
 		
-		// @NOTE Do not expose password to log
-		let requestOptionsCopy = requestOptions;
-		if ( requestOptionsCopy.body !== undefined && requestOptionsCopy.body.password !== undefined ) {
-			requestOptionsCopy.body.password = '[FILTERED]';
-		}
+		// @NOTE Do not expose body to log
+		delete requestOptions.body;
 		
-		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUrl}"`, requestOptionsCopy);
+		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUrl}"`, requestOptions);
 		
-		return fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`, requestOptions);
+		return returnedPromise;
 	}
 
 	/**
