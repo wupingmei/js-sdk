@@ -2,6 +2,7 @@
 
 /* @dependencies */
 import 'weakmap-polyfill';
+import 'object.entries'
 
 
 /**
