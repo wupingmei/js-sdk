@@ -237,7 +237,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		this.log('debug', `Requesting "${requestMethod} ${endpointUrl}"`, requestOptions);
 		
-		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, requestOptions);
+		return fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`, requestOptions);
 	}
 
 	/**
