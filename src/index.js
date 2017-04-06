@@ -4,6 +4,7 @@
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
 import 'whatwg-fetch'
+import 'object-entries'
 
 
 /**
@@ -205,7 +206,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			// @FLOWFIXME
 			let mock = this[sandboxMocks][fixtureKey];
 			
-			this.log('debug', `Requesting mocked "${requestMethod} ${endpointUrl}"`);
+			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiVersion}/${endpointUrl}"`);
 			
 			return new Promise(( resolve, reject ) => {
 				if (mock(payload) === true) {
@@ -235,7 +236,13 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			delete requestOptions.body
 		}
 		
-		this.log('debug', `Requesting "${requestMethod} ${endpointUrl}"`, requestOptions);
+		// @NOTE Do not expose password to log
+		let requestOptionsCopy = requestOptions;
+		if ( requestOptionsCopy.body !== undefined && requestOptionsCopy.body.password !== undefined ) {
+			requestOptionsCopy.body.password = '[FILTERED]';
+		}
+		
+		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUrl}"`, requestOptionsCopy);
 		
 		return fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`, requestOptions);
 	}
