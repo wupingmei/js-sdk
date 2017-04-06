@@ -24,6 +24,7 @@
     "flow-bin": "^0.42.0",
     "jest": "^19.0.2",
     "node-fetch": "^1.6.3",
+    "object.entries": "^1.0.4",
     "weakmap-polyfill": "^2.0.0",
     "whatwg-fetch": "^2.0.3"
   },
