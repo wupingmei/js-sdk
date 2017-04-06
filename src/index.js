@@ -44,12 +44,17 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	/**
  	 *	@property boolean isConnected
 	 */
-	isConnected : boolean
+	isConnected : boolean = false
 	
 	/**
  	 *	@property boolean isSandboxed
 	 */
-	isSandboxed : boolean
+	isSandboxed : boolean = false
+	
+	/**
+ 	 *	@property boolean inDebugMode
+	 */
+	inDebugMode : boolean = false
 
 	/**
 	 *	@static object defaultRequestHeaders
@@ -70,9 +75,6 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	constructor(apiVersion : string) : void {
 		super();
 		
-		this.isConnected = false;
-		this.isSandboxed = false;
-
 		// @FLOWFIXME
 		this[clientApiVersion] = apiVersion;
 		
@@ -81,8 +83,6 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	}
 
 	/**
-	 *	sandboxed
-	 *
 	 *	Sets sandboxed mode, regardless of previous mode.
 	 *
 	 *	@param object requestFixtures
@@ -98,6 +98,32 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		// @FLOWFIXME
 		this[sandboxMocks] = requestMocks;
+	}
+
+	/**
+	 *	Sets debug mode which logs various things from class.
+	 *
+ 	 *	@return void
+	 */
+	debugMode() : void {
+		this.inDebugMode = true
+	}
+
+	/**
+	 *	Logs message if {@see ThreeSixtyInterface#inDebugMode} is true.
+	 *
+	 *	@param string logType
+	 *	@param any logSource
+	 *	@param any, ... additionalParameters
+	 */
+	log(logType : "info" | "debug" | "warn" | "error", logSource : any, ...additionalParameters : Array<any>) : void {
+		if ( this.inDebugMode === true && console !== undefined ) {
+			if ( additionalParameters.length > 0 ) {
+				console[logType](logSource, ...additionalParameters);
+			} else {
+				console[logType](logSource);
+			}
+		}
 	}
 
 	/**
@@ -175,6 +201,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			// @FLOWFIXME
 			let mock = this[sandboxMocks][fixtureKey];
 			
+			this.log('debug', `Requesting mocked "${requestMethod} ${endpointUrl}"`);
+			
 			return new Promise(( resolve, reject ) => {
 				if (mock(payload) === true) {
 					resolve({
@@ -200,6 +228,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
 			delete requestOptions.body
 		}
+		
+		this.log('debug', `Requesting "${requestMethod} ${endpointUrl}"`, requestOptions);
 		
 		return fetch(`${API_ENDPOINT_URL}/${this.apiVersion}/${endpointUrl}`, requestOptions);
 	}
@@ -245,6 +275,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		this.isConnected = false;
 		this.emit('disconnect');
+		this.log('info', 'Disconnected');
 	}
 	
 	/**
@@ -263,6 +294,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		if ( this.isConnected === false ) {
 			this.isConnected = true;
 			this.emit('connect');
+			this.log('info', 'Connected');
 		}
 	}
 
