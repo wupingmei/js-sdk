@@ -158,12 +158,9 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return Promise
 	 */
-	async request(endpointUrl : string, requestMethod : string = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}) : Promise<any> {
+	async request(endpointUrl : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}) : Promise<any> {
 		let body = JSON.stringify(payload);
-		requestMethod = requestMethod.toUpperCase();
 		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
-		
-		requestMethod = requestMethod.toUpperCase();
 		endpointUrl = `${endpointUrl.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
 		
 		// @NOTE Only pass Authorization header if applicable
@@ -222,7 +219,9 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			});
 		}
 		
-		let requestOptions = { body, headers, method: requestMethod, mode: 'cors' };
+		const mode : ModeType = 'cors';
+		const method : MethodType = requestMethod;
+		let requestOptions : RequestOptions = { mode, body, headers, method };
 		
 		// @NOTE Body is not allowed for HEAD and GET requests
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
@@ -247,7 +246,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	@return Promise
 	 */
 	async connect(username : string, password : string) : Promise<any> {		
-		let response = await this.request('auth', 'post', { username, password });
+		let response = await this.request('auth', 'POST', { username, password });
 		let data = await response.json();
 	
 		if ( response.ok && data && data.token ) {
