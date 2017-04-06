@@ -1,6 +1,6 @@
 {
   "name": "threesixty-js-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "JavaScript Development Kit for 360Player public APIs.",
   "main": ".index.js",
   "author": "360Player.com",
