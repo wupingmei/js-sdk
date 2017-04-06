@@ -55,6 +55,11 @@ export default class ThreeSixtyInterface extends EventEmitter {
  	 *	@property boolean inDebugMode
 	 */
 	inDebugMode : boolean = false
+	
+	/**
+ 	 *	@property string apiEndpointUrl
+	 */
+	apiEndpointUrl : string
 
 	/**
 	 *	@static object defaultRequestHeaders
@@ -80,6 +85,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		// @FLOWFIXME
 		this[clientApiToken] = null;
+		
+		this.apiEndpointUrl = API_ENDPOINT_URL;
 	}
 
 	/**
@@ -295,6 +302,18 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			this.emit('connect');
 			this.log('info', 'Connected');
 		}
+	}
+
+	/**
+	 *	Overrides API endpoint URL.
+	 *
+	 *	@param string newApiEndpointUrl
+	 *
+	 *	@return void
+	 */
+	useEndpoint( newApiEndpointUrl : string ) : void {
+		this.log('info', "Changed endpoint from ${this.apiEndpointUrl} to ${newApiEndpointUrl}");
+		this.apiEndpointUrl = newApiEndpointUrl;
 	}
 
 }

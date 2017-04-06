@@ -32,6 +32,10 @@ Use [Jest](https://facebook.github.io/jest/) for unit and functional tests.
 yarn run test
 ```
 
+### Caveats
+
+In `src/index.js`, *all* request methods *MUST* be capsed (`GET`, `PATCH` etc).
+
 
 ## Deploying
 

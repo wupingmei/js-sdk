@@ -26,11 +26,14 @@ API interaction class, inherits from `Event/Emitter`.
 
 ## Methods
 
-### `_constructor_` ( apiVersion `string`, apiKey `string` ) _void_
+### `_constructor_` ( apiVersion `string` ) _void_
 Sets required instance variables.
 
 ### `sandboxed` ( requestFixtures `object`, requestMocks `object` ) _void_
 Sets sandboxed mode, requires fixtures and mocks for each request. See source code repository (`fixtures` directory) for fixtures and mocks.
+
+### `debugMode` () _void_
+Sets debug mode, allows internal logging to console.
 
 ### `async request` ( endpointUrl `string`, requestMethod `string`, payload `object|null`, additionalHeaders `object|null` ) _Promise_
 Attempts to make a new request to endpoint, if sandbox mode is active and fixtures are present, a resolved promise is returned. Emits `request`.
@@ -43,3 +46,6 @@ Attempts to connect to authentication endpoint using credentials. Sets `clientTo
 
 ### `useToken` ( apiToken `string` ) _void_
 Sets authentication token (JWT recieved from API authentication or from `connect`). Emits `connect` if not already connected.
+
+### `useEndpoint` ( newApiEndpointUrl `string` ) _void_
+Overrides current API endpoint URL.
