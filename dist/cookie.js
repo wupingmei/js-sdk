@@ -19,6 +19,8 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 
 require('weakmap-polyfill');
 
+require('object.entries');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -34,6 +36,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  *	@type CookieObject
  */
+
+
+/* @dependencies */
 function encode(unencodedString) {
 	try {
 		return encodeURIComponent(unencodedString);
@@ -50,9 +55,6 @@ function encode(unencodedString) {
  *
  *	@return string
  */
-
-
-/* @dependencies */
 function decode(encodedString) {
 	try {
 		return decodeURIComponent(encodedString);
