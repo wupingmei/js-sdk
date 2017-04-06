@@ -326,7 +326,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 								this.log('debug', 'Requesting "' + requestMethod + ' ' + endpointUrl + '"', requestOptions);
 
-								return _context.abrupt('return', fetch(_constants.API_ENDPOINT_URL + '/' + this.apiVersion + '/' + endpointUrl, requestOptions));
+								return _context.abrupt('return', fetch(this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl, requestOptions));
 
 							case 25:
 							case 'end':
