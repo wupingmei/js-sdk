@@ -88,12 +88,12 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 
 	/**
- 	 *	@property boolean inDebugMode
+ 	 *	@property string apiEndpointUrl
   */
 
 
 	/**
- 	 *	@property boolean isConnected
+ 	 *	@property boolean isSandboxed
   */
 	function ThreeSixtyInterface(apiVersion) {
 		(0, _classCallCheck3.default)(this, ThreeSixtyInterface);
@@ -108,6 +108,8 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 		// @FLOWFIXME
 		_this[clientApiToken] = null;
+
+		_this.apiEndpointUrl = _constants.API_ENDPOINT_URL;
 		return _this;
 	}
 
@@ -127,7 +129,12 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 
 	/**
- 	 *	@property boolean isSandboxed
+ 	 *	@property boolean inDebugMode
+  */
+
+
+	/**
+ 	 *	@property boolean isConnected
   */
 
 
@@ -446,6 +453,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				this.emit('connect');
 				this.log('info', 'Connected');
 			}
+		}
+
+		/**
+   *	Overrides API endpoint URL.
+   *
+   *	@param string newApiEndpointUrl
+   *
+   *	@return void
+   */
+
+	}, {
+		key: 'useEndpoint',
+		value: function useEndpoint(newApiEndpointUrl) {
+			this.log('info', "Changed endpoint from ${this.apiEndpointUrl} to ${newApiEndpointUrl}");
+			this.apiEndpointUrl = newApiEndpointUrl;
 		}
 	}, {
 		key: 'apiVersion',
