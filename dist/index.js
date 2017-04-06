@@ -311,7 +311,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								}));
 
 							case 21:
-								requestOptions = { body: body, headers: headers, requestMethod: requestMethod };
+								requestOptions = { body: body, headers: headers, requestMethod: requestMethod, mode: 'cors' };
 
 								// @NOTE Body is not allowed for HEAD and GET requests
 
