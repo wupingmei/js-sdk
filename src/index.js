@@ -222,7 +222,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			});
 		}
 		
-		let requestOptions = { body, headers, requestMethod };
+		let requestOptions = { body, headers, requestMethod, mode: 'cors' };
 		
 		// @NOTE Body is not allowed for HEAD and GET requests
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
