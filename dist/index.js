@@ -208,18 +208,14 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "GET";
 				var payload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 				var additionalHeaders = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-				var body, headers, fixtureKey, fixture, mock, requestOptions;
+				var body, headers, fixtureKey, fixture, mock, mode, method, requestOptions;
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
 						switch (_context.prev = _context.next) {
 							case 0:
 								body = JSON.stringify(payload);
-
-								requestMethod = requestMethod.toUpperCase();
 								headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 
-
-								requestMethod = requestMethod.toUpperCase();
 								endpointUrl = ('' + endpointUrl.toLowerCase()).replace(/\/+/g, '/').replace(/\/+$/, '');
 
 								// @NOTE Only pass Authorization header if applicable
@@ -231,7 +227,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								this.emit('request');
 
 								if (!this.isSandboxed) {
-									_context.next = 21;
+									_context.next = 19;
 									break;
 								}
 
@@ -240,21 +236,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxFixtures] === null)) {
-									_context.next = 11;
+									_context.next = 9;
 									break;
 								}
 
 								throw Error("Sandbox mode requires fixtures to be set.");
 
-							case 11:
+							case 9:
 								if (!(this[sandboxFixtures].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 13;
+									_context.next = 11;
 									break;
 								}
 
 								throw Error('Fixture for request ' + fixtureKey + ' not found.');
 
-							case 13:
+							case 11:
 
 								// @FLOWFIXME
 								fixture = this[sandboxFixtures][fixtureKey];
@@ -262,21 +258,21 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxMocks] === null)) {
-									_context.next = 16;
+									_context.next = 14;
 									break;
 								}
 
 								throw Error("Sandbox mode requires mock functions to be set.");
 
-							case 16:
+							case 14:
 								if (!(this[sandboxMocks].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 18;
+									_context.next = 16;
 									break;
 								}
 
 								throw Error('Mock function for request ' + fixtureKey + ' not found.');
 
-							case 18:
+							case 16:
 
 								// @FLOWFIXME
 								mock = this[sandboxMocks][fixtureKey];
@@ -310,8 +306,10 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									}
 								}));
 
-							case 21:
-								requestOptions = { body: body, headers: headers, requestMethod: requestMethod, mode: 'cors' };
+							case 19:
+								mode = 'cors';
+								method = requestMethod;
+								requestOptions = { mode: mode, body: body, headers: headers, method: method };
 
 								// @NOTE Body is not allowed for HEAD and GET requests
 
@@ -361,7 +359,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 						switch (_context2.prev = _context2.next) {
 							case 0:
 								_context2.next = 2;
-								return this.request('auth', 'post', { username: username, password: password });
+								return this.request('auth', 'POST', { username: username, password: password });
 
 							case 2:
 								response = _context2.sent;
