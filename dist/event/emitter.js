@@ -37,7 +37,7 @@ var Emitter = function () {
 	/**
   *	Constructor
   *
-  *	Creates a new instance of EventEmitter.
+  *	Creates a new instance of Emitter.
   *
   *	@return void
   */
@@ -230,7 +230,7 @@ var Emitter = function () {
    *	@param string eventType
    *	@param callable eventListener
    *
-   *	@return this
+   *	@return self
    */
 		value: function addOnceListener(eventType, eventListener) {
 			var _this = this,
@@ -258,7 +258,7 @@ var Emitter = function () {
    *	@param string eventType
    *	@param callable eventListener
    *
-   *	@return this
+   *	@return self
    */
 		value: function removeListener(eventType, eventListener) {
 			if (this.hasListener(eventType, eventListener) === true) {
@@ -295,6 +295,7 @@ var Emitter = function () {
 			eventListeners.forEach(function (eventListener) {
 				_this2.removeListener(eventType, eventListener);
 			});
+
 			return this;
 		}
 

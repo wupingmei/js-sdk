@@ -19,7 +19,9 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 
 require('weakmap-polyfill');
 
-require('object.entries');
+var _object = require('object.entries');
+
+var _object2 = _interopRequireDefault(_object);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -99,7 +101,7 @@ var ObjectCookieJar = exports.ObjectCookieJar = function () {
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = Object.entries(this.jar)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = (0, _object2.default)(this.jar)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var _step$value = (0, _slicedToArray3.default)(_step.value, 2),
 					    _key = _step$value[0],
 					    value = _step$value[1];
@@ -232,7 +234,7 @@ var Cookie = function () {
 			var _iteratorError2 = undefined;
 
 			try {
-				for (var _iterator2 = Object.entries(cookieObject)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+				for (var _iterator2 = (0, _object2.default)(cookieObject)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 					var _step2$value = (0, _slicedToArray3.default)(_step2.value, 2),
 					    _key2 = _step2$value[0],
 					    _value = _step2$value[1];
