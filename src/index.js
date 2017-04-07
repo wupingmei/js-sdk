@@ -3,7 +3,7 @@
 /* @dependencies */
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
-import 'whatwg-fetch'Oke
+import 'whatwg-fetch'
 
 
 /**
