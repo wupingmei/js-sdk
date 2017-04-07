@@ -182,7 +182,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		this.emit('request');
 		
 		if ( this.isSandboxed ) {
-			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`;
+			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
 			
 			// @FLOWFIXME
 			if (this[sandboxFixtures] === null) {
