@@ -148,6 +148,8 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 			// @FLOWFIXME
 			this[sandboxMocks] = requestMocks;
+
+			this.log('info', 'Activated sandbox mode.');
 		}
 
 		/**
@@ -160,6 +162,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 		key: 'debugMode',
 		value: function debugMode() {
 			this.inDebugMode = true;
+			this.log('info', 'Activated debug mode.');
 		}
 
 		/**
@@ -285,7 +288,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								mock = this[sandboxMocks][fixtureKey];
 
 
-								this.log('debug', 'Requesting mocked "' + requestMethod + ' /' + this.apiVersion + '/' + endpointUrl + '"');
+								this.log('debug', 'Requesting mocked "' + requestMethod + ' /' + this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl + '"');
 
 								return _context.abrupt('return', new Promise(function (resolve, reject) {
 									if (mock(payload) === true) {
@@ -382,7 +385,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 							case 5:
 								data = _context2.sent;
 
-								if (!(response.ok && data && data.token)) {
+								if (!(data !== undefined && data.token)) {
 									_context2.next = 13;
 									break;
 								}
