@@ -3,7 +3,7 @@
 /* @dependencies */
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
-import 'whatwg-fetch'
+import 'whatwg-fetch'Oke
 
 
 /**
@@ -105,6 +105,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		
 		// @FLOWFIXME
 		this[sandboxMocks] = requestMocks;
+		
+		this.log('info', 'Activated sandbox mode.');
 	}
 
 	/**
@@ -113,7 +115,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
  	 *	@return void
 	 */
 	debugMode() : void {
-		this.inDebugMode = true
+		this.inDebugMode = true;
+		this.log('info', 'Activated debug mode.');
 	}
 
 	/**
@@ -179,7 +182,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		this.emit('request');
 		
 		if ( this.isSandboxed ) {
-			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
+			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`;
 			
 			// @FLOWFIXME
 			if (this[sandboxFixtures] === null) {
@@ -205,7 +208,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			// @FLOWFIXME
 			let mock = this[sandboxMocks][fixtureKey];
 			
-			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiVersion}/${endpointUrl}"`);
+			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}"`);
 			
 			return new Promise(( resolve, reject ) => {
 				if (mock(payload) === true) {
@@ -261,7 +264,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		let response = await this.request('auth', 'POST', { username, password });
 		let data = await response.json();
 	
-		if ( response.ok && data && data.token ) {
+		if ( data !== undefined && data.token ) {
 			this.isConnected = true;
 			this.useToken(data.token);
 			
