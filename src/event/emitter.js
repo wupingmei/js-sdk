@@ -31,7 +31,7 @@ export default class Emitter {
 	/**
 	 *	Constructor
 	 *
-	 *	Creates a new instance of EventEmitter.
+	 *	Creates a new instance of Emitter.
 	 *
 	 *	@return void
 	 */
@@ -61,7 +61,7 @@ export default class Emitter {
 	 *
 	 *	@return void
 	 */
-	setMaxListenerCount(newMaxListenerCount : number) : void {
+	setMaxListenerCount( newMaxListenerCount : number ) : void {
 		if (isNaN(newMaxListenerCount) === true) return;
 		let checkFloat = parseFloat(newMaxListenerCount);
 
@@ -101,7 +101,7 @@ export default class Emitter {
 	 *
 	 *	@return array
 	 */
-	getListeners(eventType : string) : Array<mixed> {
+	getListeners( eventType : string ) : Array<mixed> {
 		if (this.eventTypes.indexOf(eventType) >= 0) {
 			return Object.values(this.eventStore[eventType]);
 		}
@@ -117,7 +117,7 @@ export default class Emitter {
 	 *
 	 *	@return int
 	 */
-	listenerCount(eventType : string) : number {
+	listenerCount( eventType : string ) : number {
 		return this.getListeners(eventType).length;
 	}
 
@@ -131,7 +131,7 @@ export default class Emitter {
 	 *
 	 *	@return int
 	 */
-	getListenerPosition(eventType : string, eventListener : Function) : number {
+	getListenerPosition( eventType : string, eventListener : Function ) : number {
 		return this.getListeners(eventType).indexOf(eventListener);
 	}
 
@@ -145,7 +145,7 @@ export default class Emitter {
 	 *
 	 *	@return bool
 	 */
-	hasListener(eventType : string, eventListener : Function) : bool {
+	hasListener( eventType : string, eventListener : Function ) : bool {
 		if (this.eventTypes.indexOf(eventType) >= 0) {
 			return (this.getListenerPosition(eventType, eventListener)>= 0);
 		}
@@ -163,7 +163,7 @@ export default class Emitter {
 	 *
 	 *	@return self
 	 */
-	addListener(eventType : string, eventListener : Function) {
+	addListener( eventType : string, eventListener : Function ) : Emitter {
 
 		if (this.hasListener(eventType, eventListener) === true) {
 			return this;
@@ -193,9 +193,9 @@ export default class Emitter {
 	 *	@param string eventType
 	 *	@param callable eventListener
 	 *
-	 *	@return this
+	 *	@return self
 	 */
-	addOnceListener(eventType : string, eventListener : Function) {
+	addOnceListener( eventType : string, eventListener : Function ) : Emitter {
 		const selfRemovingEventListener = () => {
 			this.removeListener(eventType, selfRemovingEventListener);
 			eventListener.apply(this, arguments);
@@ -215,9 +215,9 @@ export default class Emitter {
 	 *	@param string eventType
 	 *	@param callable eventListener
 	 *
-	 *	@return this
+	 *	@return self
 	 */
-	removeListener(eventType : string, eventListener : Function) {
+	removeListener( eventType : string, eventListener : Function ) : Emitter {
 		if (this.hasListener(eventType, eventListener) === true) {
 			let listenerPosition = this.getListenerPosition(eventType, eventListener);
 			this.eventStore[eventType].splice(listenerPosition, 1);
@@ -239,10 +239,11 @@ export default class Emitter {
 	 *
 	 *	@return self
 	 */
-	removeListeners(eventType : string, ...eventListeners : Array<Function>) {
+	removeListeners(eventType : string, ...eventListeners : Array<Function>) : Emitter {
 		eventListeners.forEach((eventListener) => {
 			this.removeListener(eventType, eventListener);
 		});
+
 		return this;
 	}
 
@@ -255,7 +256,7 @@ export default class Emitter {
 	 *
 	 *	@return self
 	 */
-	removeAllListeners(eventType : string) {
+	removeAllListeners(eventType : string) : Emitter {
 		if (this.eventStore.hasOwnProperty(eventType) === true) {
 			this.eventStore[eventType] = [];
 		}
@@ -273,7 +274,7 @@ export default class Emitter {
 	 *
 	 *	@return void
 	 */
-	emit(eventType : string , ...listenerArguments : any[]) : void {
+	emit( eventType : string , ...listenerArguments : Array<any> ) : void {
 		if (this.eventStore.hasOwnProperty(eventType) === true) {
 			this.eventStore[eventType].forEach(eventListener => {
 				eventListener.apply(null, listenerArguments)

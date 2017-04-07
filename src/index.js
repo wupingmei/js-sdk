@@ -4,7 +4,6 @@
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
 import 'whatwg-fetch'
-import 'object.entries'
 
 
 /**
@@ -31,7 +30,7 @@ let sandboxMocks = Symbol();
  *	@type RequestHeaders
  *	Key, value map of request headers.
  */
-type RequestHeaders = { [key : string] : string }
+type RequestHeaders = { [ key : string ] : string }
 
 /** @NOTE There's an open issue with computed properties and Flow - https://github.com/facebook/flow/issues/252 */
 
@@ -78,7 +77,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return void
 	 */
-	constructor(apiVersion : string) : void {
+	constructor( apiVersion : string ) : void {
 		super();
 		
 		// @FLOWFIXME
@@ -98,7 +97,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return void
 	 */
-	sandboxed(requestFixtures : Object, requestMocks : Object) : void {
+	sandboxed( requestFixtures : Object, requestMocks : Object ) : void {
 		this.isSandboxed = true;
 		
 		// @FLOWFIXME
@@ -124,7 +123,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	@param any logSource
 	 *	@param any, ... additionalParameters
 	 */
-	log(logType : "info" | "debug" | "warn" | "error", logSource : any, ...additionalParameters : Array<any>) : void {
+	log( logType : "info" | "debug" | "warn" | "error", logSource : any, ...additionalParameters : Array<any> ) : void {
 		if ( this.inDebugMode === true && console !== undefined ) {
 			if ( additionalParameters.length > 0 ) {
 				console[logType](logSource, ...additionalParameters);
@@ -166,7 +165,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return Promise
 	 */
-	async request(endpointUrl : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}) : Promise<any> {
+	async request( endpointUrl : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {} ) : Promise<any> {
 		let body = JSON.stringify(payload);
 		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 		endpointUrl = `${endpointUrl.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
@@ -258,7 +257,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return Promise
 	 */
-	async connect(username : string, password : string) : Promise<any> {		
+	async connect( username : string, password : string ) : Promise<any> {		
 		let response = await this.request('auth', 'POST', { username, password });
 		let data = await response.json();
 	
@@ -299,7 +298,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return void
 	 */
-	useToken(apiToken : string) : void {
+	useToken( apiToken : string ) : void {
 		// @FLOWFIXME
 		this[clientApiToken] = apiToken;
 		

@@ -4,13 +4,13 @@
  *	@type FixtureMap
  * Key, value map of request fixtures.
  */
-type FixtureMap = { [key : string] : Object }
+type FixtureMap = { [ key : string ] : Object }
 
 /**
  *	@type MockMap
  * Key, value map of request mock hanlers.
  */
-type MockMap = { [key : string] : Function }
+type MockMap = { [ key : string ] : Function }
 
 /**
  *	@const TEST_USERNAME string
@@ -36,7 +36,7 @@ export const fixtures : FixtureMap = {
  *	@const MockMap mocks
  */
 export const mocks : MockMap = {
-	"POST /v1/auth": (payload) => {
+	"POST /v1/auth": ( payload ) => {
 		let { username, password } = payload;
 		return ( username === TEST_USERNAME && password === TEST_PASSWORD );
 	}

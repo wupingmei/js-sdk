@@ -2,7 +2,7 @@
 
 /* @dependencies */
 import 'weakmap-polyfill';
-import 'object.entries'
+import entries from 'object.entries'
 
 
 /**
@@ -18,7 +18,7 @@ type CookieObject = { [ key : string ] : string }
  *
  *	@return string
  */
-function encode(unencodedString : any) : string {
+function encode( unencodedString : any ) : string {
 	try {
 		return encodeURIComponent(unencodedString);
 	} catch ( error ) {
@@ -34,7 +34,7 @@ function encode(unencodedString : any) : string {
  *
  *	@return string
  */
-function decode(encodedString : any) : string {
+function decode( encodedString : any ) : string {
 	try {
 		return decodeURIComponent(encodedString);
 	} catch ( error ) {
@@ -49,7 +49,7 @@ export class ObjectCookieJar {
 
 	jar : CookieObject = {}
 
-	set cookie(cookieHeader : string) : void {
+	set cookie( cookieHeader : string ) : void {
 		let actualCookieData = cookieHeader.split(/;(.+)/)[0];
 		let [ name, value ] = actualCookieData.split(/=(.+)/);
 		
@@ -65,7 +65,7 @@ export class ObjectCookieJar {
 	get cookie() : string {
 		let cookieParts = [];
 		
-		for ( let [ key, value ] of Object.entries(this.jar) ) {
+		for ( let [ key, value ] of entries(this.jar) ) {
 			cookieParts.push(`${encode(key)}=${encode(value)}`);
 		}
 		
@@ -79,7 +79,7 @@ export class ObjectCookieJar {
  */
 export class ClientCookieJar {
 
-	set cookie(cookieHeader : string) : void {
+	set cookie( cookieHeader : string ) : void {
 		document.cookie = cookieHeader
 	}
 	
@@ -108,7 +108,7 @@ export default class Cookie {
 	 *
 	 *	@return void
 	 */
-	static use(newCookieJar : any) : void {
+	static use( newCookieJar : any ) : void {
 		cookieJar.set(Cookie, newCookieJar);
 	}
 
@@ -119,7 +119,7 @@ export default class Cookie {
 	 *
 	 *	@return CookieObject
 	 */
-	static parse(cookieString : string) : CookieObject {
+	static parse( cookieString : string ) : CookieObject {
 		let cookieObject : CookieObject = {};
 		
 		if ( cookieString === undefined ) {
@@ -141,7 +141,7 @@ export default class Cookie {
 	 *
 	 *	@return string
 	 */
-	static stringify(cookieObject : CookieObject) : string {
+	static stringify( cookieObject : CookieObject ) : string {
 		let { name, value } = cookieObject;
 		
 		delete cookieObject.name;
@@ -149,7 +149,7 @@ export default class Cookie {
 		
 		let cookieParts = [ `${encode(name)}=${encode(value)}` ];
 		
-		for ( let [ key, value ] of Object.entries(cookieObject) ) {
+		for ( let [ key, value ] of entries(cookieObject) ) {
 			cookieParts.push(`${encode(key)}=${encode(value)}`);
 		}
 		
@@ -166,7 +166,7 @@ export default class Cookie {
 	 *
 	 *	@return void
 	 */
-	static set(cookieIdentifier : string, cookieValue : string, cookieExpireDays : number = 7, additionalCookieOptions : Object = {}) : void {
+	static set( cookieIdentifier : string, cookieValue : string, cookieExpireDays : number = 7, additionalCookieOptions : Object = {} ) : void {
 		const jar : any = cookieJar.get(Cookie);
 		let expireDate = new Date(Date.now() + (cookieExpireDays * 24 * 60 * 60 * 1000)).toUTCString();
 		
@@ -190,7 +190,7 @@ export default class Cookie {
 	 *
 	 *	@return string|undefined
 	 */
-	static get(cookieIdentifier : string) : mixed {
+	static get( cookieIdentifier : string ) : mixed {
 		const jar : any = cookieJar.get(Cookie);
 		const parsedCookie = Cookie.parse(jar.cookie);
 		return parsedCookie[cookieIdentifier];
@@ -203,7 +203,7 @@ export default class Cookie {
 	 *
 	 *	@return bool
 	 */
-	static has(cookieIdentifier : string) : bool {
+	static has( cookieIdentifier : string ) : bool {
 		return Cookie.get(cookieIdentifier) !== undefined;
 	}
 	
@@ -214,7 +214,7 @@ export default class Cookie {
 	 *
 	 *	@return void
 	 */
-	static unset(cookieIdentifier : string) : void {
+	static unset( cookieIdentifier : string ) : void {
 		Cookie.set(cookieIdentifier, "", 0);
 	}
 	
@@ -226,7 +226,7 @@ export default class Cookie {
 	 *
 	 *	@return bool
 	 */
-	static matches(cookieIdentifier : string, expectedCookieValue : string) : bool {
+	static matches( cookieIdentifier : string, expectedCookieValue : string ) : bool {
 		return ( Cookie.has(cookieIdentifier) === true && Cookie.get(cookieIdentifier) === expectedCookieValue );
 	}
 
