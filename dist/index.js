@@ -468,8 +468,8 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    *
    *	Attempts to connect with Facebook access code.
    *
-  	 *	@param string username
-   *	@param string password
+  	 *	@param string authToken
+   *	@param string redirectUri
    *
    *	@emits 'connect'
    *
@@ -479,7 +479,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	}, {
 		key: 'connectWithFacebook',
 		value: function () {
-			var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(authToken, redirectUrl) {
+			var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(authToken, redirectUri) {
 				return _regenerator2.default.wrap(function _callee4$(_context4) {
 					while (1) {
 						switch (_context4.prev = _context4.next) {
@@ -488,7 +488,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								return this.connectWithPayload({
 									medium: 'facebook',
 									code: authToken,
-									redirect_url: redirectUrl
+									redirect_uri: redirectUri
 								});
 
 							case 2:
