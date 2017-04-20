@@ -5,6 +5,11 @@
   "main": ".index.js",
   "author": "360Player.com",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/360player/threesixty-js-sdk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/360player/threesixty-js-sdk"
+  },
   "scripts": {
     "lint": "./node_modules/.bin/flow check",
     "test": "./node_modules/.bin/flow check && ./node_modules/.bin/jest",
@@ -24,9 +29,11 @@
     "flow-bin": "^0.43.1",
     "jest": "^19.0.2",
     "node-fetch": "^1.6.3",
-    "object.entries": "^1.0.4",
-    "weakmap-polyfill": "^2.0.0",
+    "query-string": "^4.3.4",
     "whatwg-fetch": "^2.0.3"
+  },
+  "optionalDependencies": {
+    "cookie": "^0.3.1"
   },
   "jest": {
     "testRegex": "/.*\\.js$",

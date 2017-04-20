@@ -3,8 +3,8 @@
 /* @dependencies */
 import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
+import qs from 'query-string'
 import 'whatwg-fetch'
-
 
 /**
  *	@private symbol clientApiVersion
@@ -25,6 +25,14 @@ let sandboxFixtures = Symbol();
  *	@private symbol sandboxMocks
  */
 let sandboxMocks = Symbol();
+
+/**
+ *	@const array ENDPOINT_BEARER_WHITELIST
+ */
+const ENDPOINT_BEARER_WHITELIST = [
+	[ 'POST', 'auth' ],
+	[ 'POST', 'users' ]
+];
 
 /**
  *	@type RequestHeaders
@@ -161,28 +169,40 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	Attempts to make a new request to endpoint, if sandbox mode is active and fixtures are present, a resolved promise is returned.
 	 *
-	 *	@param string endpointUrl
+	 *	@param string endpointUri
 	 *	@param string requestMethod
 	 *	@param object|null payload
 	 *	@param RequestHeaders|null additionalHeaders
 	 *
 	 *	@return Promise
 	 */
-	async request( endpointUrl : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {} ) : Promise<any> {
+	async request( endpointUri : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}, uriOptions : ?Object = {} ) : Promise<any> {
 		let body = JSON.stringify(payload);
 		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
-		endpointUrl = `${endpointUrl.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
+		endpointUri = `${endpointUri.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
 		
 		// @NOTE Only pass Authorization header if applicable
-		if ( requestMethod === 'POST' && ( endpointUrl === 'auth' || endpointUrl === 'users' ) === false ) {
-			// @FLOWFIXME
-			headers['Authorization'] = `Bearer ${this[clientApiToken]}`;
+		ENDPOINT_BEARER_WHITELIST.forEach(whitelist => {
+			const [ method, uri ] = whitelist;
+			const isWhitelisted = ( requestMethod === method && endpointUri === uri );
+
+			if ( isWhitelisted === false ) {
+				// @FLOWFIXME
+				headers['Authorization'] = `Bearer ${this[clientApiToken]}`;
+				return false;
+			}
+		});
+		
+		// @NOTE Append URI options to endpointUri
+		if ( uriOptions && Object.keys(uriOptions).length > 0 ) {
+			endpointUri += `?${qs.stringify(uriOptions)}`;
 		}
 		
 		this.emit('request');
 		
+		// @NOTE Capture sandboxed mode
 		if ( this.isSandboxed ) {
-			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUrl}`;
+			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUri}`;
 			
 			// @FLOWFIXME
 			if (this[sandboxFixtures] === null) {
@@ -208,7 +228,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			// @FLOWFIXME
 			let mock = this[sandboxMocks][fixtureKey];
 			
-			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}"`);
+			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUri}"`);
 			
 			return new Promise(( resolve, reject ) => {
 				if (mock(payload) === true) {
@@ -238,12 +258,12 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			delete requestOptions.body
 		}
 
-		const returnedPromise = fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUrl}`, requestOptions);
+		const returnedPromise = fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUri}`, requestOptions);
 		
 		// @NOTE Do not expose body to log
 		delete requestOptions.body;
 		
-		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUrl}"`, requestOptions);
+		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUri}"`, requestOptions);
 		
 		return returnedPromise;
 	}
@@ -254,13 +274,14 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	Attempts to connect to authentication endpoint, sends payload.
 	 *
  	 *	@param object payload
+	 *	@param object uriOptions
 	 *
 	 *	@emits 'connect'
 	 *
 	 *	@return Promise
 	 */
-	async connectWithPayload( payload : Object ) : Promise<any> {		
-		let response = await this.request('auth', 'POST', payload);
+	async connectWithPayload( payload : Object, uriOptions : ?Object) : Promise<any> {
+		let response = await this.request('auth', 'POST', payload, {}, uriOptions);
 		let data = await response.json();
 	
 		if ( data !== undefined && data.token ) {
@@ -305,10 +326,9 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 */
 	async connectWithFacebook( authToken : string, redirectUri : string ) : Promise<any> {
 		return await this.connectWithPayload({
-			medium : 'facebook',
 			code : authToken,
 			redirect_uri : redirectUri
-		});
+		}, { medium : 'facebook' });
 	}
 
 	/**
