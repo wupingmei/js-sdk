@@ -26,6 +26,12 @@ There are two ways to authenticate each instance. Most commonly through credenti
 api.connect('user@email.com', 'p******d');
 ```
 
+### With Facebook
+
+```javascript
+api.connectWithFacebook('code-recieved-from-facebook-redirect', 'http://your-redirect-uri.tld');
+```
+
 ### With token
 
 ```javascript
