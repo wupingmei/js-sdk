@@ -249,19 +249,18 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	}
 
 	/**
-	 *	@async connect
+	 *	@async connectWithPayload
 	 *
-	 *	Attempts to connect to authentication endpoint.
+	 *	Attempts to connect to authentication endpoint, sends payload.
 	 *
- 	 *	@param string username
-	 *	@param string password
+ 	 *	@param object payload
 	 *
 	 *	@emits 'connect'
 	 *
 	 *	@return Promise
 	 */
-	async connect( username : string, password : string ) : Promise<any> {		
-		let response = await this.request('auth', 'POST', { username, password });
+	async connectWithPayload( payload : Object ) : Promise<any> {		
+		let response = await this.request('auth', 'POST', payload);
 		let data = await response.json();
 	
 		if ( data !== undefined && data.token ) {
@@ -274,6 +273,42 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		}
 	
 		return response;
+	}
+
+	/**
+	 *	@async connect
+	 *
+	 *	Attempts to connect with user credentials.
+	 *
+ 	 *	@param string username
+	 *	@param string password
+	 *
+	 *	@emits 'connect'
+	 *
+	 *	@return Promise
+	 */
+	async connect( username : string, password : string ) : Promise<any> {		
+		return await this.connectWithPayload({ username, password });
+	}
+
+	/**
+	 *	@async connect
+	 *
+	 *	Attempts to connect with Facebook access code.
+	 *
+ 	 *	@param string username
+	 *	@param string password
+	 *
+	 *	@emits 'connect'
+	 *
+	 *	@return Promise
+	 */
+	async connectWithFacebook( authToken : string, redirectUrl : string ) : Promise<any> {
+		return await this.connectWithPayload({
+			medium : 'facebook',
+			code : authToken,
+			redirect_url : redirectUrl
+		});
 	}
 
 	/**
