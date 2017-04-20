@@ -296,18 +296,18 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	Attempts to connect with Facebook access code.
 	 *
- 	 *	@param string username
-	 *	@param string password
+ 	 *	@param string authToken
+	 *	@param string redirectUri
 	 *
 	 *	@emits 'connect'
 	 *
 	 *	@return Promise
 	 */
-	async connectWithFacebook( authToken : string, redirectUrl : string ) : Promise<any> {
+	async connectWithFacebook( authToken : string, redirectUri : string ) : Promise<any> {
 		return await this.connectWithPayload({
 			medium : 'facebook',
 			code : authToken,
-			redirect_url : redirectUrl
+			redirect_uri : redirectUri
 		});
 	}
 
