@@ -8,6 +8,10 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -34,6 +38,10 @@ var _emitter = require('./event/emitter');
 
 var _emitter2 = _interopRequireDefault(_emitter);
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 require('whatwg-fetch');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -41,14 +49,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  *	@private symbol clientApiVersion
  */
+
+
+/* @dependencies */
 var clientApiVersion = Symbol();
 
 /**
  *	@private symbol clientApiToken
  */
-
-
-/* @dependencies */
 var clientApiToken = Symbol();
 
 /**
@@ -60,6 +68,11 @@ var sandboxFixtures = Symbol();
  *	@private symbol sandboxMocks
  */
 var sandboxMocks = Symbol();
+
+/**
+ *	@const array ENDPOINT_BEARER_WHITELIST
+ */
+var ENDPOINT_BEARER_WHITELIST = [['POST', 'auth'], ['POST', 'users']];
 
 /**
  *	@type RequestHeaders
@@ -206,7 +219,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    *
    *	Attempts to make a new request to endpoint, if sandbox mode is active and fixtures are present, a resolved promise is returned.
    *
-   *	@param string endpointUrl
+   *	@param string endpointUri
    *	@param string requestMethod
    *	@param object|null payload
    *	@param RequestHeaders|null additionalHeaders
@@ -214,10 +227,14 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    *	@return Promise
    */
 		value: function () {
-			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(endpointUrl) {
+			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(endpointUri) {
 				var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "GET";
 				var payload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+				var _this2 = this;
+
 				var additionalHeaders = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+				var uriOptions = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 				var body, headers, fixtureKey, fixture, mock, mode, method, requestOptions, returnedPromise;
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
@@ -226,41 +243,57 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								body = JSON.stringify(payload);
 								headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 
-								endpointUrl = ('' + endpointUrl.toLowerCase()).replace(/\/+/g, '/').replace(/\/+$/, '');
+								endpointUri = ('' + endpointUri.toLowerCase()).replace(/\/+/g, '/').replace(/\/+$/, '');
 
 								// @NOTE Only pass Authorization header if applicable
-								if (requestMethod === 'POST' && (endpointUrl === 'auth' || endpointUrl === 'users') === false) {
-									// @FLOWFIXME
-									headers['Authorization'] = 'Bearer ' + this[clientApiToken];
+								ENDPOINT_BEARER_WHITELIST.forEach(function (whitelist) {
+									var _whitelist = (0, _slicedToArray3.default)(whitelist, 2),
+									    method = _whitelist[0],
+									    uri = _whitelist[1];
+
+									var isWhitelisted = requestMethod === method && endpointUri === uri;
+
+									if (isWhitelisted === false) {
+										// @FLOWFIXME
+										headers['Authorization'] = 'Bearer ' + _this2[clientApiToken];
+										return false;
+									}
+								});
+
+								// @NOTE Append URI options to endpointUri
+								if (uriOptions && Object.keys(uriOptions).length > 0) {
+									endpointUri += '?' + _queryString2.default.stringify(uriOptions);
 								}
 
 								this.emit('request');
 
+								// @NOTE Capture sandboxed mode
+
 								if (!this.isSandboxed) {
-									_context.next = 19;
+									_context.next = 20;
 									break;
 								}
 
-								fixtureKey = requestMethod.toUpperCase() + ' /' + this.apiVersion + '/' + endpointUrl;
+								fixtureKey = requestMethod.toUpperCase() + ' /' + this.apiVersion + '/' + endpointUri;
 
 								// @FLOWFIXME
 
 								if (!(this[sandboxFixtures] === null)) {
-									_context.next = 9;
+									_context.next = 10;
 									break;
 								}
 
 								throw Error("Sandbox mode requires fixtures to be set.");
 
-							case 9:
+							case 10:
 								if (!(this[sandboxFixtures].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 11;
+									_context.next = 12;
 									break;
 								}
 
 								throw Error('Fixture for request ' + fixtureKey + ' not found.');
 
-							case 11:
+							case 12:
 
 								// @FLOWFIXME
 								fixture = this[sandboxFixtures][fixtureKey];
@@ -268,27 +301,27 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								// @FLOWFIXME
 
 								if (!(this[sandboxMocks] === null)) {
-									_context.next = 14;
+									_context.next = 15;
 									break;
 								}
 
 								throw Error("Sandbox mode requires mock functions to be set.");
 
-							case 14:
+							case 15:
 								if (!(this[sandboxMocks].hasOwnProperty(fixtureKey) === false)) {
-									_context.next = 16;
+									_context.next = 17;
 									break;
 								}
 
 								throw Error('Mock function for request ' + fixtureKey + ' not found.');
 
-							case 16:
+							case 17:
 
 								// @FLOWFIXME
 								mock = this[sandboxMocks][fixtureKey];
 
 
-								this.log('debug', 'Requesting mocked "' + requestMethod + ' /' + this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl + '"');
+								this.log('debug', 'Requesting mocked "' + requestMethod + ' /' + this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUri + '"');
 
 								return _context.abrupt('return', new Promise(function (resolve, reject) {
 									if (mock(payload) === true) {
@@ -316,7 +349,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									}
 								}));
 
-							case 19:
+							case 20:
 								mode = 'cors';
 								method = requestMethod;
 								requestOptions = { mode: mode, body: body, headers: headers, method: method };
@@ -327,17 +360,17 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 									delete requestOptions.body;
 								}
 
-								returnedPromise = fetch(this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUrl, requestOptions);
+								returnedPromise = fetch(this.apiEndpointUrl + '/' + this.apiVersion + '/' + endpointUri, requestOptions);
 
 								// @NOTE Do not expose body to log
 
 								delete requestOptions.body;
 
-								this.log('debug', 'Requesting "' + requestMethod + ' /' + this.apiVersion + '/' + endpointUrl + '"', requestOptions);
+								this.log('debug', 'Requesting "' + requestMethod + ' /' + this.apiVersion + '/' + endpointUri + '"', requestOptions);
 
 								return _context.abrupt('return', returnedPromise);
 
-							case 27:
+							case 28:
 							case 'end':
 								return _context.stop();
 						}
@@ -358,6 +391,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    *	Attempts to connect to authentication endpoint, sends payload.
    *
   	 *	@param object payload
+   *	@param object uriOptions
    *
    *	@emits 'connect'
    *
@@ -367,14 +401,14 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	}, {
 		key: 'connectWithPayload',
 		value: function () {
-			var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(payload) {
+			var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(payload, uriOptions) {
 				var response, data;
 				return _regenerator2.default.wrap(function _callee2$(_context2) {
 					while (1) {
 						switch (_context2.prev = _context2.next) {
 							case 0:
 								_context2.next = 2;
-								return this.request('auth', 'POST', payload);
+								return this.request('auth', 'POST', payload, {}, uriOptions);
 
 							case 2:
 								response = _context2.sent;
@@ -414,7 +448,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee2, this);
 			}));
 
-			function connectWithPayload(_x5) {
+			function connectWithPayload(_x6, _x7) {
 				return _ref2.apply(this, arguments);
 			}
 
@@ -456,7 +490,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee3, this);
 			}));
 
-			function connect(_x6, _x7) {
+			function connect(_x8, _x9) {
 				return _ref3.apply(this, arguments);
 			}
 
@@ -486,10 +520,9 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 							case 0:
 								_context4.next = 2;
 								return this.connectWithPayload({
-									medium: 'facebook',
 									code: authToken,
 									redirect_uri: redirectUri
-								});
+								}, { medium: 'facebook' });
 
 							case 2:
 								return _context4.abrupt('return', _context4.sent);
@@ -502,7 +535,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee4, this);
 			}));
 
-			function connectWithFacebook(_x8, _x9) {
+			function connectWithFacebook(_x10, _x11) {
 				return _ref4.apply(this, arguments);
 			}
 
