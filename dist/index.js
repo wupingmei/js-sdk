@@ -353,12 +353,11 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 		}()
 
 		/**
-   *	@async connect
+   *	@async connectWithPayload
    *
-   *	Attempts to connect to authentication endpoint.
+   *	Attempts to connect to authentication endpoint, sends payload.
    *
-  	 *	@param string username
-   *	@param string password
+  	 *	@param object payload
    *
    *	@emits 'connect'
    *
@@ -366,16 +365,16 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    */
 
 	}, {
-		key: 'connect',
+		key: 'connectWithPayload',
 		value: function () {
-			var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(username, password) {
+			var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(payload) {
 				var response, data;
 				return _regenerator2.default.wrap(function _callee2$(_context2) {
 					while (1) {
 						switch (_context2.prev = _context2.next) {
 							case 0:
 								_context2.next = 2;
-								return this.request('auth', 'POST', { username: username, password: password });
+								return this.request('auth', 'POST', payload);
 
 							case 2:
 								response = _context2.sent;
@@ -415,11 +414,99 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee2, this);
 			}));
 
-			function connect(_x5, _x6) {
+			function connectWithPayload(_x5) {
 				return _ref2.apply(this, arguments);
 			}
 
+			return connectWithPayload;
+		}()
+
+		/**
+   *	@async connect
+   *
+   *	Attempts to connect with user credentials.
+   *
+  	 *	@param string username
+   *	@param string password
+   *
+   *	@emits 'connect'
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'connect',
+		value: function () {
+			var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(username, password) {
+				return _regenerator2.default.wrap(function _callee3$(_context3) {
+					while (1) {
+						switch (_context3.prev = _context3.next) {
+							case 0:
+								_context3.next = 2;
+								return this.connectWithPayload({ username: username, password: password });
+
+							case 2:
+								return _context3.abrupt('return', _context3.sent);
+
+							case 3:
+							case 'end':
+								return _context3.stop();
+						}
+					}
+				}, _callee3, this);
+			}));
+
+			function connect(_x6, _x7) {
+				return _ref3.apply(this, arguments);
+			}
+
 			return connect;
+		}()
+
+		/**
+   *	@async connect
+   *
+   *	Attempts to connect with Facebook access code.
+   *
+  	 *	@param string username
+   *	@param string password
+   *
+   *	@emits 'connect'
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'connectWithFacebook',
+		value: function () {
+			var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(authToken, redirectUrl) {
+				return _regenerator2.default.wrap(function _callee4$(_context4) {
+					while (1) {
+						switch (_context4.prev = _context4.next) {
+							case 0:
+								_context4.next = 2;
+								return this.connectWithPayload({
+									medium: 'facebook',
+									code: authToken,
+									redirect_url: redirectUrl
+								});
+
+							case 2:
+								return _context4.abrupt('return', _context4.sent);
+
+							case 3:
+							case 'end':
+								return _context4.stop();
+						}
+					}
+				}, _callee4, this);
+			}));
+
+			function connectWithFacebook(_x8, _x9) {
+				return _ref4.apply(this, arguments);
+			}
+
+			return connectWithFacebook;
 		}()
 
 		/**
