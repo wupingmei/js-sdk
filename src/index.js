@@ -186,8 +186,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 			const [ method, uri ] = whitelist;
 			const isWhitelisted = ( requestMethod === method && endpointUri === uri );
 
-			if ( isWhitelisted === false ) {
-				// @FLOWFIXME
+			// @FLOWFIXME
+			if ( isWhitelisted === false && typeof this[clientApiToken] === 'string') {
 				headers['Authorization'] = `Bearer ${this[clientApiToken]}`;
 				return false;
 			}
@@ -264,7 +264,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		delete requestOptions.body;
 		
 		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUri}"`, requestOptions);
-		
+
 		return returnedPromise;
 	}
 
