@@ -253,8 +253,8 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 									var isWhitelisted = requestMethod === method && endpointUri === uri;
 
-									if (isWhitelisted === false) {
-										// @FLOWFIXME
+									// @FLOWFIXME
+									if (isWhitelisted === false && typeof _this2[clientApiToken] === 'string') {
 										headers['Authorization'] = 'Bearer ' + _this2[clientApiToken];
 										return false;
 									}
