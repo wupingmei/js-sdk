@@ -5,6 +5,7 @@ import { API_ENDPOINT_URL } from './constants'
 import EventEmitter from './event/emitter'
 import qs from 'query-string'
 import 'whatwg-fetch'
+import 'es6-symbol/implement'
 
 /**
  *	@private symbol clientApiVersion
@@ -45,7 +46,7 @@ type RequestHeaders = { [ key : string ] : string }
 /**
  *	ThreeSixtyInterface
  *
- *	Handles interaction with public 360Player APIs. 
+ *	Handles interaction with public 360Player APIs.
  */
 export default class ThreeSixtyInterface extends EventEmitter {
 
@@ -53,17 +54,17 @@ export default class ThreeSixtyInterface extends EventEmitter {
  	 *	@property boolean isConnected
 	 */
 	isConnected : boolean = false
-	
+
 	/**
  	 *	@property boolean isSandboxed
 	 */
 	isSandboxed : boolean = false
-	
+
 	/**
  	 *	@property boolean inDebugMode
 	 */
 	inDebugMode : boolean = false
-	
+
 	/**
  	 *	@property string apiEndpointUrl
 	 */
@@ -87,13 +88,13 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 */
 	constructor( apiVersion : string ) : void {
 		super();
-		
+
 		// @FLOWFIXME
 		this[clientApiVersion] = apiVersion;
-		
+
 		// @FLOWFIXME
 		this[clientApiToken] = null;
-		
+
 		this.apiEndpointUrl = API_ENDPOINT_URL;
 	}
 
@@ -107,13 +108,13 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 */
 	sandboxed( requestFixtures : Object, requestMocks : Object ) : void {
 		this.isSandboxed = true;
-		
+
 		// @FLOWFIXME
 		this[sandboxFixtures] = requestFixtures;
-		
+
 		// @FLOWFIXME
 		this[sandboxMocks] = requestMocks;
-		
+
 		this.log('info', 'Activated sandbox mode.');
 	}
 
@@ -153,7 +154,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		// @FLOWFIXME
 		return this[clientApiVersion];
 	}
-	
+
 	/**
 	 *	@propertyGetter clientToken
 	 *
@@ -180,7 +181,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		let body = JSON.stringify(payload);
 		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 		endpointUri = `${endpointUri.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
-		
+
 		// @NOTE Only pass Authorization header if applicable
 		ENDPOINT_BEARER_WHITELIST.forEach(whitelist => {
 			const [ method, uri ] = whitelist;
@@ -192,44 +193,44 @@ export default class ThreeSixtyInterface extends EventEmitter {
 				return false;
 			}
 		});
-		
+
 		// @NOTE Append URI options to endpointUri
 		if ( uriOptions && Object.keys(uriOptions).length > 0 ) {
 			endpointUri += `?${qs.stringify(uriOptions)}`;
 		}
-		
+
 		this.emit('request');
-		
+
 		// @NOTE Capture sandboxed mode
 		if ( this.isSandboxed ) {
 			let fixtureKey = `${requestMethod.toUpperCase()} /${this.apiVersion}/${endpointUri}`;
-			
+
 			// @FLOWFIXME
 			if (this[sandboxFixtures] === null) {
 				throw Error("Sandbox mode requires fixtures to be set.");
 			}
-			
+
 			if (this[sandboxFixtures].hasOwnProperty(fixtureKey) === false) {
 				throw Error(`Fixture for request ${fixtureKey} not found.`);
 			}
-			
+
 			// @FLOWFIXME
 			let fixture = this[sandboxFixtures][fixtureKey];
-			
+
 			// @FLOWFIXME
 			if (this[sandboxMocks] === null) {
 				throw Error("Sandbox mode requires mock functions to be set.");
 			}
-			
+
 			if (this[sandboxMocks].hasOwnProperty(fixtureKey) === false) {
 				throw Error(`Mock function for request ${fixtureKey} not found.`);
 			}
-			
+
 			// @FLOWFIXME
 			let mock = this[sandboxMocks][fixtureKey];
-			
+
 			this.log('debug', `Requesting mocked "${requestMethod} /${this.apiEndpointUrl}/${this.apiVersion}/${endpointUri}"`);
-			
+
 			return new Promise(( resolve, reject ) => {
 				if (mock(payload) === true) {
 					resolve({
@@ -239,7 +240,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 					})
 				} else {
 					let mockError = { error: "Mock function failed." };
-	
+
 					resolve({
 						ok: false,
 						json: () => mockError,
@@ -248,21 +249,21 @@ export default class ThreeSixtyInterface extends EventEmitter {
 				}
 			});
 		}
-		
+
 		const mode : ModeType = 'cors';
 		const method : MethodType = requestMethod;
 		let requestOptions : RequestOptions = { mode, body, headers, method };
-		
+
 		// @NOTE Body is not allowed for HEAD and GET requests
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
 			delete requestOptions.body
 		}
 
 		const returnedPromise = fetch(`${this.apiEndpointUrl}/${this.apiVersion}/${endpointUri}`, requestOptions);
-		
+
 		// @NOTE Do not expose body to log
 		delete requestOptions.body;
-		
+
 		this.log('debug', `Requesting "${requestMethod} /${this.apiVersion}/${endpointUri}"`, requestOptions);
 
 		return returnedPromise;
@@ -283,16 +284,16 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	async connectWithPayload( payload : Object, uriOptions : ?Object) : Promise<any> {
 		let response = await this.request('auth', 'POST', payload, {}, uriOptions);
 		let data = await response.json();
-	
+
 		if ( data !== undefined && data.token ) {
 			this.isConnected = true;
 			this.useToken(data.token);
-			
+
 			await this.emit('connect');
 		} else {
 			await this.disconnect();
 		}
-	
+
 		return response;
 	}
 
@@ -308,7 +309,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *
 	 *	@return Promise
 	 */
-	async connect( username : string, password : string ) : Promise<any> {		
+	async connect( username : string, password : string ) : Promise<any> {
 		return await this.connectWithPayload({ username, password });
 	}
 
@@ -341,12 +342,12 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	disconnect() : void {
 		// @FLOWFIXME
 		this[clientApiToken] = null;
-		
+
 		this.isConnected = false;
 		this.emit('disconnect');
 		this.log('info', 'Disconnected');
 	}
-	
+
 	/**
  	 *	Sets JWT token for current instance. If user is not connected, connection status is set to true and event emits.
 	 *
@@ -359,7 +360,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	useToken( apiToken : string ) : void {
 		// @FLOWFIXME
 		this[clientApiToken] = apiToken;
-		
+
 		if ( this.isConnected === false ) {
 			this.isConnected = true;
 			this.emit('connect');
