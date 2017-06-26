@@ -1,5 +1,8 @@
 /* @flow */
 
+/* @dependencies */
+import 'es6-symbol/implement'
+
 /**
  *	@const int EVENT_MIN_LISTENERS
  */
