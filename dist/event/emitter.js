@@ -12,13 +12,21 @@ var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
+require('es6-symbol/implement');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ *	@const int EVENT_MIN_LISTENERS
+ */
 var EVENT_MIN_LISTENERS = 1;
 
 /**
  *	@const int EVENT_MAX_LISTENERS
  */
+
+
+/* @dependencies */
 var EVENT_MAX_LISTENERS = 10;
 
 /**

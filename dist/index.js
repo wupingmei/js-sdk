@@ -44,19 +44,21 @@ var _queryString2 = _interopRequireDefault(_queryString);
 
 require('whatwg-fetch');
 
+require('es6-symbol/implement');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *	@private symbol clientApiVersion
  */
-
-
-/* @dependencies */
 var clientApiVersion = Symbol();
 
 /**
  *	@private symbol clientApiToken
  */
+
+
+/* @dependencies */
 var clientApiToken = Symbol();
 
 /**
@@ -84,7 +86,7 @@ var ENDPOINT_BEARER_WHITELIST = [['POST', 'auth'], ['POST', 'users']];
 /**
  *	ThreeSixtyInterface
  *
- *	Handles interaction with public 360Player APIs. 
+ *	Handles interaction with public 360Player APIs.
  */
 var ThreeSixtyInterface = function (_EventEmitter) {
 	(0, _inherits3.default)(ThreeSixtyInterface, _EventEmitter);
@@ -622,6 +624,5 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 }(_emitter2.default);
 
 ThreeSixtyInterface.defaultRequestHeaders = {
-	'Content-Type': 'application/json'
-};
+	'Content-Type': 'application/json' };
 exports.default = ThreeSixtyInterface;
