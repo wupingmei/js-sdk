@@ -12,6 +12,10 @@ var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
+var _extends2 = require('babel-runtime/helpers/extends');
+
+var _extends3 = _interopRequireDefault(_extends2);
+
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -243,7 +247,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 						switch (_context.prev = _context.next) {
 							case 0:
 								body = JSON.stringify(payload);
-								headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
+								headers = (0, _extends3.default)(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 
 								endpointUri = ('' + endpointUri.toLowerCase()).replace(/\/+/g, '/').replace(/\/+$/, '');
 
