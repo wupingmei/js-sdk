@@ -601,7 +601,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 	}, {
 		key: 'useEndpoint',
 		value: function useEndpoint(newApiEndpointUrl) {
-			this.log('info', "Changed endpoint from ${this.apiEndpointUrl} to ${newApiEndpointUrl}");
+			this.log('info', 'Changed endpoint from ' + this.apiEndpointUrl + ' to ' + newApiEndpointUrl);
 			this.apiEndpointUrl = newApiEndpointUrl;
 		}
 	}, {
