@@ -376,7 +376,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	 *	@return void
 	 */
 	useEndpoint( newApiEndpointUrl : string ) : void {
-		this.log('info', "Changed endpoint from ${this.apiEndpointUrl} to ${newApiEndpointUrl}");
+		this.log('info', `Changed endpoint from ${this.apiEndpointUrl} to ${newApiEndpointUrl}`);
 		this.apiEndpointUrl = newApiEndpointUrl;
 	}
 
