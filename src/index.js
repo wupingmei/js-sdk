@@ -35,6 +35,37 @@ const ENDPOINT_BEARER_WHITELIST = [
 	[ 'POST', 'users' ]
 ];
 
+type MixedObjectType = { [ key : string ] : mixed };
+
+function omit( sourceObject : MixedObjectType, ...omitKeys : Array<string> ) : MixedObjectType {
+	let filteredObject : MixedObjectType = Object.assign( {}, sourceObject );
+
+	omitKeys.forEach( ( omitKey : string ) => {
+		const omitKeyExists : boolean = ( Object.keys( sourceObject ).indexOf( omitKey ) > -1 );
+
+		if ( omitKeyExists === true ) {
+			delete filteredObject[ omitKey ];
+		}
+	});
+
+	return filteredObject;
+}
+
+function only( sourceObject : MixedObjectType, ...keepKeys : Array<string> ) : MixedObjectType {
+	let filteredObject : MixedObjectType = {};
+	let keepKey : string;
+
+	keepKeys.forEach( keepKey => {
+		const keyExists : boolean = ( Object.keys( sourceObject ).indexOf( keepKey ) > -1 );
+
+		if ( keyExists ) {
+			filteredObject[ keepKey ] = sourceObject[ keepKey ];
+		}
+	});
+
+	return filteredObject;
+}
+
 /**
  *	@type RequestHeaders
  *	Key, value map of request headers.
@@ -165,6 +196,35 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		return this[clientApiToken];
 	}
 
+	fetchOptions = {};
+
+	setFetchOptions( newOptions = {} ) {
+		let safeOptions = omit( newOptions, 'body' );
+
+		this.fetchOptions = Object.assign( this.fetchOptions, safeOptions );
+	}
+
+	getFetchOptions( requestOptions ) {
+		const validOptions = [
+			'method',
+			'headers',
+			'body',
+			'mode',
+			'credentials',
+			'cache',
+			'redirect',
+			'referrer',
+			'referrerPolicy',
+			'integrity',
+			'keepalive',
+			'signal'
+		];
+
+		let safeOptions = only( Object.assign( requestOptions, this.fetchOptions ), ...validOptions );
+
+		return safeOptions;
+	}
+
 	/**
 	 *	@async request
 	 *
@@ -180,7 +240,7 @@ export default class ThreeSixtyInterface extends EventEmitter {
 	async request( endpointUri : string, requestMethod : MethodType = "GET", payload : Object = {}, additionalHeaders : RequestHeaders = {}, uriOptions : ?Object = {} ) : Promise<any> {
 		let body = JSON.stringify(payload);
 		let headers = Object.assign(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
-		endpointUri = `${endpointUri.toLowerCase()}`.replace(/\/+/g, '/').replace(/\/+$/, '');
+		endpointUri = endpointUri.replace(/\/+/g, '/').replace(/^\/|\/$/g, '');
 
 		// @NOTE Only pass Authorization header if applicable
 		ENDPOINT_BEARER_WHITELIST.forEach(whitelist => {
@@ -253,6 +313,8 @@ export default class ThreeSixtyInterface extends EventEmitter {
 		const mode : ModeType = 'cors';
 		const method : MethodType = requestMethod;
 		let requestOptions : RequestOptions = { mode, body, headers, method };
+
+		requestOptions = this.getFetchOptions( requestOptions );
 
 		// @NOTE Body is not allowed for HEAD and GET requests
 		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
