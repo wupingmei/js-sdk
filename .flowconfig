@@ -1,3 +1,6 @@
 [options]
 unsafe.enable_getters_and_setters=true
 suppress_comment= \\(.\\|\n\\)*\\@FLOWFIXME
+
+[ignore]
+.*/node_modules/unflowify/test/.*

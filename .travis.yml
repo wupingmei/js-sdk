@@ -1,7 +1,4 @@
 language: node_js
 node_js:
-  - "7"
-before_script: "yarn run lint"
-branches:
-  only:
-    - master
+  - "node"
+script: "yarn run code-quality"

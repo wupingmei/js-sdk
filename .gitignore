@@ -5,6 +5,7 @@ npm-debug.log*
 /log/*
 !/log/.keep
 /tmp
+dump.rdb
 
 # Runtime data
 pids
@@ -28,3 +29,39 @@ node_modules
 .DS_Store
 Thumbs.db
 ehthumbs.db
+
+# Editor Configurations
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+
+# Database
+*.sql
+*.sqlite
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packaged Files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Dist
+/dist/generics.js
+
+# Snapshots
+**/__snapshots__
+
+# Development
+*.development.js

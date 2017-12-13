@@ -1,18 +1,14 @@
 {
-  "presets": [
-    "es2015",
-  ],
-  "plugins": [
-    "transform-class-properties",
-    "transform-async-to-generator",
-    "transform-function-bind",
-    "transform-flow-strip-types",
-    "transform-object-assign",
-    [
-      "transform-runtime", {
-        "polyfill": false,
-        "regenerator": true
-      }
-    ]
-  ]
+	"presets": [
+		"es2015"
+	],
+	"plugins": [
+		"transform-flow-strip-types",
+		[
+			"transform-runtime", {
+				"polyfill": false,
+				"regenerator": true
+			}
+		]
+	]
 }
