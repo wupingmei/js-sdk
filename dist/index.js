@@ -12,10 +12,6 @@ var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-var _extends2 = require('babel-runtime/helpers/extends');
-
-var _extends3 = _interopRequireDefault(_extends2);
-
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -35,6 +31,10 @@ var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorRet
 var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _extends2 = require('babel-runtime/helpers/extends');
+
+var _extends3 = _interopRequireDefault(_extends2);
 
 var _constants = require('./constants');
 
@@ -80,6 +80,43 @@ var sandboxMocks = Symbol();
  */
 var ENDPOINT_BEARER_WHITELIST = [['POST', 'auth'], ['POST', 'users']];
 
+function omit(sourceObject) {
+	var filteredObject = (0, _extends3.default)({}, sourceObject);
+
+	for (var _len = arguments.length, omitKeys = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+		omitKeys[_key - 1] = arguments[_key];
+	}
+
+	omitKeys.forEach(function (omitKey) {
+		var omitKeyExists = Object.keys(sourceObject).indexOf(omitKey) > -1;
+
+		if (omitKeyExists === true) {
+			delete filteredObject[omitKey];
+		}
+	});
+
+	return filteredObject;
+}
+
+function only(sourceObject) {
+	var filteredObject = {};
+	var keepKey = void 0;
+
+	for (var _len2 = arguments.length, keepKeys = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+		keepKeys[_key2 - 1] = arguments[_key2];
+	}
+
+	keepKeys.forEach(function (keepKey) {
+		var keyExists = Object.keys(sourceObject).indexOf(keepKey) > -1;
+
+		if (keyExists) {
+			filteredObject[keepKey] = sourceObject[keepKey];
+		}
+	});
+
+	return filteredObject;
+}
+
 /**
  *	@type RequestHeaders
  *	Key, value map of request headers.
@@ -123,6 +160,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 		_this.isConnected = false;
 		_this.isSandboxed = false;
 		_this.inDebugMode = false;
+		_this.fetchOptions = {};
 		_this[clientApiVersion] = apiVersion;
 
 		// @FLOWFIXME
@@ -196,8 +234,8 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 		key: 'log',
 		value: function log(logType, logSource) {
 			if (this.inDebugMode === true && console !== undefined) {
-				for (var _len = arguments.length, additionalParameters = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-					additionalParameters[_key - 2] = arguments[_key];
+				for (var _len3 = arguments.length, additionalParameters = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+					additionalParameters[_key3 - 2] = arguments[_key3];
 				}
 
 				if (additionalParameters.length > 0) {
@@ -217,8 +255,23 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    */
 
 	}, {
-		key: 'request',
+		key: 'setFetchOptions',
+		value: function setFetchOptions() {
+			var newOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+			var safeOptions = omit(newOptions, 'body');
+
+			this.fetchOptions = (0, _extends3.default)(this.fetchOptions, safeOptions);
+		}
+	}, {
+		key: 'getFetchOptions',
+		value: function getFetchOptions(requestOptions) {
+			var validOptions = ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy', 'integrity', 'keepalive', 'signal'];
+
+			var safeOptions = only.apply(undefined, [(0, _extends3.default)(requestOptions, this.fetchOptions)].concat(validOptions));
+
+			return safeOptions;
+		}
 
 		/**
    *	@async request
@@ -232,6 +285,9 @@ var ThreeSixtyInterface = function (_EventEmitter) {
    *
    *	@return Promise
    */
+
+	}, {
+		key: 'request',
 		value: function () {
 			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(endpointUri) {
 				var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "GET";
@@ -249,7 +305,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								body = JSON.stringify(payload);
 								headers = (0, _extends3.default)(additionalHeaders, ThreeSixtyInterface.defaultRequestHeaders);
 
-								endpointUri = ('' + endpointUri.toLowerCase()).replace(/\/+/g, '/').replace(/\/+$/, '');
+								endpointUri = endpointUri.replace(/\/+/g, '/').replace(/^\/|\/$/g, '');
 
 								// @NOTE Only pass Authorization header if applicable
 								ENDPOINT_BEARER_WHITELIST.forEach(function (whitelist) {
@@ -360,8 +416,10 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 								method = requestMethod;
 								requestOptions = { mode: mode, body: body, headers: headers, method: method };
 
-								// @NOTE Body is not allowed for HEAD and GET requests
 
+								requestOptions = this.getFetchOptions(requestOptions);
+
+								// @NOTE Body is not allowed for HEAD and GET requests
 								if (requestMethod === 'GET' || requestMethod === 'HEAD') {
 									delete requestOptions.body;
 								}
@@ -376,7 +434,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 
 								return _context.abrupt('return', returnedPromise);
 
-							case 28:
+							case 29:
 							case 'end':
 								return _context.stop();
 						}
@@ -384,7 +442,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee, this);
 			}));
 
-			function request(_x) {
+			function request(_x2) {
 				return _ref.apply(this, arguments);
 			}
 
@@ -454,7 +512,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee2, this);
 			}));
 
-			function connectWithPayload(_x6, _x7) {
+			function connectWithPayload(_x7, _x8) {
 				return _ref2.apply(this, arguments);
 			}
 
@@ -496,7 +554,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee3, this);
 			}));
 
-			function connect(_x8, _x9) {
+			function connect(_x9, _x10) {
 				return _ref3.apply(this, arguments);
 			}
 
@@ -541,7 +599,7 @@ var ThreeSixtyInterface = function (_EventEmitter) {
 				}, _callee4, this);
 			}));
 
-			function connectWithFacebook(_x10, _x11) {
+			function connectWithFacebook(_x11, _x12) {
 				return _ref4.apply(this, arguments);
 			}
 
