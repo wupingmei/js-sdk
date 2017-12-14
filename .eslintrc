@@ -47,7 +47,12 @@
     ],
     "flowtype/no-primitive-constructor-types": "error",
     "flowtype/no-types-missing-file-annotation": "error",
-    "flowtype/no-weak-types": "error",
+    "flowtype/no-weak-types": [
+      "error",
+      {
+        "Function": false
+      }
+    ],
     "flowtype/object-type-delimiter": [
       "error",
       "comma"
