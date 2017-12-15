@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
 var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
@@ -40,6 +44,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  *	@const array API_VERSION_LIST
  */
+
+
+/* @type-dependencies */
 
 
 /**
@@ -204,6 +211,7 @@ var Connection = function () {
 		this.requestHeaders = {
 			'Content-Type': 'application/json'
 		};
+		this.requestPayload = {};
 	}
 
 	/**
@@ -228,6 +236,11 @@ var Connection = function () {
 
 	/**
   *	@var RequestHeadersType requestHeaders
+  */
+
+
+	/**
+  *	@var JsonPropertyObjectType requestPayload
   */
 
 
@@ -368,13 +381,15 @@ var Connection = function () {
    *
    *	@param RequestHeadersType additionalRequestHeaders
    *
-   *	@return void
+   *	@return boolean
    */
 
 	}, {
 		key: 'setRequestHeaders',
 		value: function setRequestHeaders(additionalRequestHeaders) {
 			this.requestHeaders = Object.assign(this.requestHeaders, additionalRequestHeaders);
+
+			return true;
 		}
 
 		/**
@@ -387,6 +402,158 @@ var Connection = function () {
 		key: 'getRequestHeaders',
 		value: function getRequestHeaders() {
 			return this.requestHeaders;
+		}
+
+		/**
+   *	Returns number of headers set.
+   *
+   *	@return number
+   */
+
+	}, {
+		key: 'setRequestOptions',
+
+
+		/**
+   *	Sets internal request options to use with Fetch API.
+   *
+   *	@param RequestOptionsType additionalOptions
+   *
+   *	@return boolean
+   */
+		value: function setRequestOptions(additionalOptions) {
+			additionalOptions = (0, _omit2.default)(additionalOptions, 'body');
+
+			this.requestOptions = Object.assign(this.requestOptions, additionalOptions);
+
+			return true;
+		}
+
+		/**
+   *	Returns request options to use with Fetch API.
+   *
+   *	@return RequestOptionsType
+   */
+
+	}, {
+		key: 'getRequestOptions',
+		value: function getRequestOptions() {
+			return this.requestOptions;
+		}
+
+		/**
+   *	Returns options size (how many options currently set).
+   *
+   *	@return number
+   */
+
+	}, {
+		key: 'setPayload',
+
+
+		/**
+   *	Appends items to payload.
+   *
+   *	@param JsonPropertyObjectType additionalPayload
+   *	@param boolean removeNull
+   *
+   *	@return boolean
+   */
+		value: function setPayload(additionalPayload) {
+			var removeNull = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+			this.requestPayload = Object.assign(this.requestPayload, additionalPayload);
+
+			if (removeNull === true) {
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+
+				try {
+					for (var _iterator = Object.entries(this.requestPayload)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+						var _step$value = (0, _slicedToArray3.default)(_step.value, 2),
+						    _key = _step$value[0],
+						    value = _step$value[1];
+
+						if (value === null) {
+							delete this.requestPayload[_key];
+						}
+					}
+				} catch (err) {
+					_didIteratorError = true;
+					_iteratorError = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion && _iterator.return) {
+							_iterator.return();
+						}
+					} finally {
+						if (_didIteratorError) {
+							throw _iteratorError;
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+		/**
+   *	Returns current payload.
+   *
+   *	@return JsonPropertyObjectType
+   */
+
+	}, {
+		key: 'getPayload',
+		value: function getPayload() {
+			return this.requestPayload;
+		}
+
+		/**
+   *	Validates if payload has property.
+   *
+   *	@param string payloadKey
+   *
+   *	@return boolean
+   */
+
+	}, {
+		key: 'hasPayload',
+		value: function hasPayload(payloadKey) {
+			return this.requestPayload.hasOwnProperty(payloadKey);
+		}
+
+		/**
+   *	Returns JSON string of current payload.
+   *
+   *	@return string
+   */
+
+	}, {
+		key: 'getPayloadString',
+		value: function getPayloadString() {
+			return JSON.stringify(this.requestPayload);
+		}
+
+		/**
+   *	Returns the size of current payload (how many properties set).
+   *
+   *	@return number
+   */
+
+	}, {
+		key: 'destroyPayload',
+
+
+		/**
+   *	Destroys current payload.
+   *
+   *	@return void
+   */
+		value: function destroyPayload() {
+			var emptypPayload = {};
+			this.requestPayload = emptypPayload;
 		}
 	}, {
 		key: 'hasStoreTokenPolicy',
@@ -402,6 +569,21 @@ var Connection = function () {
 		key: 'hasFetchTokenPolicy',
 		get: function get() {
 			return typeof this.fetchTokenPolicyCallback === 'function';
+		}
+	}, {
+		key: 'numRequestHeaders',
+		get: function get() {
+			return Object.keys(this.requestHeaders).length;
+		}
+	}, {
+		key: 'optionsSize',
+		get: function get() {
+			return Object.keys(this.requestOptions).length;
+		}
+	}, {
+		key: 'payloadSize',
+		get: function get() {
+			return Object.keys(this.requestPayload).length;
 		}
 	}]);
 	return Connection;

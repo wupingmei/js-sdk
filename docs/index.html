@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>360Player / JavaScript SDK</title>
+		<title>360Player / JavaScript Toolkit</title>
 		<style type="text/css">
 			body, html {
 				height: 100%;
@@ -37,6 +37,8 @@
 				position: relative;
 				z-index: 1000;
 				width: 100%;
+				height: 100%;
+				overflow-y: auto;
 				text-align: center;
 				display: block;
 			}
@@ -46,7 +48,6 @@
 				width: 80%;
 				max-width: 320px;
 				display: block;
-
 				-webkit-filter: drop-shadow( #0288D1 0 5px 20px );
 				filter: drop-shadow( #0288D1 0 5px 20px );
 			}
@@ -66,17 +67,70 @@
 				color: #333;
 			}
 
-			a {
-				margin-top: 25px;
+			p a {
+				margin: 0 10px;
+				margin-top: 15px;
 				padding: 10px 25px;
 				padding-bottom: 12px;
 				border-radius: 1000px;
 				background: #0288D1;
 				display: inline-block;
 				text-decoration: none;
-				font-weight: 700;
+				font-size: 14px;
+				font-weight: 400;
 				color: #E1F5FE;
+				position: relative;
+				top: 0;
+				transition:
+					top 250ms ease-in-out,
+					color 250ms ease-in-out,
+					box-shadow 250ms ease-in-out;
+			}
+
+			p a.follow {
+				margin-top: 50px;
+				padding: 15px 30px;
+				font-size: 16px;
+				background: #fff;
+				box-shadow: none;
+				color: #0288D1;
+			}
+
+			p a:hover {
+				top: -1px;
+				color: #fff;
 				box-shadow: #0288D1 0 5px 20px;
+			}
+
+			p a.follow:hover {
+				color: #000;
+				box-shadow: #ccc 0 5px 20px;
+			}
+
+			code {
+				margin-top: 20px;
+				padding: 20px 25px;
+				background: #263238;
+				display: inline-block;
+				border-radius: 3px;
+				font: 300 16px "Roboto Mono", monospace;
+			}
+
+			code var {
+				font-style: normal;
+				color: #2196F3;
+			}
+
+			code span.flags {
+				color: #546E7A;
+			}
+
+			code span.command {
+				color: #00BCD4;
+			}
+
+			code span.repository {
+				color: #FFD54F;
 			}
 		</style>
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,700" rel="stylesheet" />
@@ -96,7 +150,20 @@
 				</svg>
 				<h1>JavaScript SDK</h1>
 				<h3>JavaScript Development Kit for 360Player public APIs.</h3>
-				<p><a href="https://github.com/360player/js-sdk">View on GitHub</a></p>
+				<p>
+					<a href="https://github.com/360player/js-sdk/zipball/master">Download .zip</a>
+					or
+					<a href="https://github.com/360player/js-sdk/tarball/master">Download .tar</a>
+				</p>
+
+				<code>
+					<var>yarn</var>
+					<span class="command">add</span>
+					<span class="repository">https://github.com/360player/js-sdk.git</span>
+					<span class="flags">--save</span>
+				</code>
+
+				<p><a href="https://github.com/360player/js-sdk" class="follow">Explore Github repository</a></p>
 			</article>
 		</header>
 	</body>

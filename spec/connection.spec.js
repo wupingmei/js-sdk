@@ -75,3 +75,91 @@ describe('Connection token', () => {
 		expect( attemptedGetToken ).toThrowError();
 	});
 });
+
+describe('Connection headers', () => {
+
+	it('can get headers', () => {
+		const requestHeaders = connection.getRequestHeaders();
+		expect( requestHeaders ).toBeDefined();
+	});
+
+	it('can set headers', () => {
+		const didSetHeaders = connection.setRequestHeaders({
+			'X-Custom-Header' : 'Hello World'
+		});
+
+		expect( didSetHeaders ).toBe( true );
+	});
+
+});
+
+describe('Connection options', () => {
+
+	it('can get options', () => {
+		const requestOptions = connection.getRequestOptions();
+		expect( requestOptions ).toBeDefined();
+	});
+
+	it('can get options', () => {
+		const didSetOptions = connection.setRequestOptions({
+			mode : 'cors'
+		});
+
+		expect( didSetOptions ).toBe( true );
+	});
+
+	it('can return options size', () => {
+		const initialSize = connection.optionsSize;
+		connection.setRequestOptions({
+			method : 'DELETE'
+		});
+
+		const currentSize = connection.optionsSize;
+
+		expect( currentSize ).toBeGreaterThan( initialSize );
+	});
+
+});
+
+describe('Connection payload', () => {
+
+	it('can set payload values', () => {
+		const didSetPayload = connection.setPayload({
+			favouriteBar: 'Mikkeller STHLM'
+		});
+
+		expect( didSetPayload ).toBe( true );
+	});
+
+	it('can unset payload values', () => {
+		connection.setPayload({ foo : 'Foo' });
+		const initialValue = connection.hasPayload( 'foo' );
+
+		connection.setPayload( { foo : null }, true );
+		const currentValue = connection.hasPayload( 'foo' );
+
+		expect( initialValue ).toBe( true );
+		expect( currentValue ).toBe( false );
+	});
+
+	it('can return payload size', () => {
+		const initialSize = connection.payloadSize;
+		connection.setPayload({ foo : 'Foo' });
+
+		const currentSize = connection.payloadSize;
+
+		expect( currentSize ).toBeGreaterThan( initialSize );
+	});
+
+	it('can destroy payload', () => {
+		connection.setPayload({ foo : 'Foo' });
+		const initialSize = connection.payloadSize;
+
+		connection.destroyPayload();
+		const currentSize = connection.payloadSize;
+
+		expect( initialSize ).toBeGreaterThan( 0 );
+		expect( currentSize ).toEqual( 0 );
+	});
+
+});

@@ -4,6 +4,9 @@
 import omit from 'js-toolkit/omit';
 import UrlParser, { ParserParamsType } from 'js-toolkit/url/parser';
 
+/* @type-dependencies */
+import type { JsonPropertyObjectType } from './generics';
+
 /**
  *	@type ApiVersionType
  *	@TODO Add (UNION) for additional versions, e.g. "v1" | "v2"
@@ -155,6 +158,11 @@ class Connection {
 	};
 
 	/**
+	 *	@var JsonPropertyObjectType requestPayload
+	 */
+	requestPayload : JsonPropertyObjectType = {};
+
+	/**
 	 *	Sets API version to prepend API calls with.
 	 *
 	 *	@param ApiVersionType apiVersion
@@ -281,13 +289,15 @@ class Connection {
 	 *
 	 *	@param RequestHeadersType additionalRequestHeaders
 	 *
-	 *	@return void
+	 *	@return boolean
 	 */
-	setRequestHeaders( additionalRequestHeaders : RequestHeadersType ) {
+	setRequestHeaders( additionalRequestHeaders : RequestHeadersType ) : boolean {
 		this.requestHeaders = Object.assign(
 			this.requestHeaders,
 			additionalRequestHeaders
 		);
+
+		return true;
 	}
 
 	/**
@@ -297,6 +307,124 @@ class Connection {
 	 */
 	getRequestHeaders() : RequestHeadersType {
 		return this.requestHeaders;
+	}
+
+	/**
+	 *	Returns number of headers set.
+	 *
+	 *	@return number
+	 */
+	get numRequestHeaders() : number {
+		return Object.keys( this.requestHeaders ).length;
+	}
+
+	/**
+	 *	Sets internal request options to use with Fetch API.
+	 *
+	 *	@param RequestOptionsType additionalOptions
+	 *
+	 *	@return boolean
+	 */
+	setRequestOptions( additionalOptions : RequestOptionsType ) : boolean {
+		additionalOptions = omit( additionalOptions, 'body' );
+
+		this.requestOptions = Object.assign(
+			this.requestOptions,
+			additionalOptions
+		);
+
+		return true;
+	}
+
+	/**
+	 *	Returns request options to use with Fetch API.
+	 *
+	 *	@return RequestOptionsType
+	 */
+	getRequestOptions() : RequestOptionsType {
+		return this.requestOptions;
+	}
+
+	/**
+	 *	Returns options size (how many options currently set).
+	 *
+	 *	@return number
+	 */
+	get optionsSize() : number {
+		return Object.keys( this.requestOptions ).length;
+	}
+
+	/**
+	 *	Appends items to payload.
+	 *
+	 *	@param JsonPropertyObjectType additionalPayload
+	 *	@param boolean removeNull
+	 *
+	 *	@return boolean
+	 */
+	setPayload( additionalPayload : JsonPropertyObjectType, removeNull : boolean = false ) : boolean {
+		this.requestPayload = Object.assign(
+			this.requestPayload,
+			additionalPayload
+		);
+
+		if ( removeNull === true ) {
+			for ( const [ key, value ] of Object.entries( this.requestPayload ) ) {
+				if ( value === null ) {
+					delete this.requestPayload[ key ];
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 *	Returns current payload.
+	 *
+	 *	@return JsonPropertyObjectType
+	 */
+	getPayload() : JsonPropertyObjectType {
+		return this.requestPayload;
+	}
+
+	/**
+	 *	Validates if payload has property.
+	 *
+	 *	@param string payloadKey
+	 *
+	 *	@return boolean
+	 */
+	hasPayload( payloadKey : string ) : boolean {
+		return this.requestPayload.hasOwnProperty( payloadKey );
+	}
+
+	/**
+	 *	Returns JSON string of current payload.
+	 *
+	 *	@return string
+	 */
+	getPayloadString() : string {
+		return JSON.stringify( this.requestPayload );
+	}
+
+	/**
+	 *	Returns the size of current payload (how many properties set).
+	 *
+	 *	@return number
+	 */
+	get payloadSize() : number {
+		return Object.keys( this.requestPayload ).length;
+	}
+
+	/**
+	 *	Destroys current payload.
+	 *
+	 *	@return void
+	 */
+	destroyPayload() {
+		const emptypPayload : JsonPropertyObjectType = {};
+		this.requestPayload = emptypPayload;
 	}
 
 }
