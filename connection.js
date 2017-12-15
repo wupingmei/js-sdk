@@ -56,6 +56,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 
 /**
+ *	@type RequestMethodType
+ */
+
+
+/**
  *	@type RequestOptionsType
  */
 
@@ -207,15 +212,22 @@ var Connection = function () {
 	function Connection() {
 		(0, _classCallCheck3.default)(this, Connection);
 		this.apiVersion = 'v1';
+		this.endpointUrl = 'https://api.360player.com';
 		this.requestOptions = {};
 		this.requestHeaders = {
 			'Content-Type': 'application/json'
 		};
 		this.requestPayload = {};
+		this.shouldIncludeAuthorizationHeader = true;
 	}
 
 	/**
   *	@var ApiVersionType apiVersion
+  */
+
+
+	/**
+  *	@var string endpointUrl
   */
 
 
@@ -241,6 +253,11 @@ var Connection = function () {
 
 	/**
   *	@var JsonPropertyObjectType requestPayload
+  */
+
+
+	/**
+  *	@var boolean shouldIncludeAuthorizationHeader
   */
 
 
@@ -543,17 +560,234 @@ var Connection = function () {
    */
 
 	}, {
-		key: 'destroyPayload',
+		key: 'useEndpoint',
 
+
+		/**
+   *	Sets API endpoint URL.
+   *
+   *	@param string endpointUrl
+   *
+   *	@return void
+   */
+		value: function useEndpoint(endpointUrl) {
+			this.endpointUrl = endpointUrl.replace(/\/+$/, '');
+		}
 
 		/**
    *	Destroys current payload.
    *
    *	@return void
    */
+
+	}, {
+		key: 'destroyPayload',
 		value: function destroyPayload() {
 			var emptypPayload = {};
 			this.requestPayload = emptypPayload;
+		}
+
+		/**
+   *	Resolves URI pattern and params into absolute URL and validates authorization header requirement.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param RequestMethodType requestMethod
+   *
+   *	@return string
+   */
+
+	}, {
+		key: 'resolveRequestUri',
+		value: function resolveRequestUri(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
+
+			var relativeUriPath = urlParser.transform(this.getApiVersion() + '/' + uriPattern, uriParams);
+			var absolutePath = [this.endpointUrl, relativeUriPath].join('/');
+
+			if (API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod)) {
+				this.shouldIncludeAuthorizationHeader = false;
+			} else {
+				this.shouldIncludeAuthorizationHeader = true;
+			}
+
+			return absolutePath;
+		}
+
+		/**
+   *	Prepares request options and headers.
+   *
+   *	@param RequestOptionsType requestOptions
+   *	@param RequestHeadersType requestHeaders
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'prepareRequest',
+		value: async function prepareRequest() {
+			var requestOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+			var requestHeaders = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+			this.setRequestOptions(requestOptions);
+
+			var authorizationHeaders = {};
+
+			if (this.shouldIncludeAuthorizationHeader === true) {
+				var accessToken = await this.getToken();
+				authorizationHeaders['Authorization'] = 'Bearer ' + accessToken;
+			}
+
+			this.setRequestHeaders(Object.assign(requestHeaders, authorizationHeaders));
+
+			if (this.requestOptions.method === 'GET' || this.requestOptions.method === 'HEAD') {
+				// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
+				var nullBody = { body: null };
+				this.setRequestOptions(nullBody);
+			}
+
+			return Promise.resolve([this.getRequestOptions(), this.getRequestHeaders()]);
+		}
+
+		/**
+   *	Requests API based on set options.
+   *
+   *	@param string requestUrl
+   *	@param RequestMethodType requestMethod
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'request',
+		value: async function request(requestUrl) {
+			var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'GET';
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var defaultRequestOptions = { method: requestMethod };
+			var defaultRequestHeaders = {};
+
+			this.setPayload(requestPayload);
+
+			if (requestMethod !== 'GET' || requestMethod !== 'HEAD') {
+				this.requestOptions.body = this.getPayloadString();
+			}
+
+			// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
+
+			var _ref = await this.prepareRequest(defaultRequestOptions, defaultRequestHeaders),
+			    _ref2 = (0, _slicedToArray3.default)(_ref, 2),
+			    requestOptions = _ref2[0],
+			    requestHeaders = _ref2[1];
+
+			requestOptions.headers = requestHeaders;
+
+			var request = await fetch(requestUrl, requestOptions);
+			var response = await request.json();
+
+			return response;
+		}
+
+		/**
+   *	Alias function for GET requests.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'get',
+		value: async function get(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var targetUrl = this.resolveRequestUri(uriPattern, uriParams, 'GET');
+			return await this.request(targetUrl, 'GET', requestPayload);
+		}
+
+		/**
+   *	Alias function for POST requests.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'post',
+		value: async function post(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var targetUrl = this.resolveRequestUri(uriPattern, uriParams, 'POST');
+			return await this.request(targetUrl, 'POST', requestPayload);
+		}
+
+		/**
+   *	Alias function for PUT requests.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'put',
+		value: async function put(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var targetUrl = this.resolveRequestUri(uriPattern, uriParams, 'PUT');
+			return await this.request(targetUrl, 'PUT', requestPayload);
+		}
+
+		/**
+   *	Alias function for PATCH requests.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'patch',
+		value: async function patch(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var targetUrl = this.resolveRequestUri(uriPattern, uriParams, 'PATCH');
+			return await this.request(targetUrl, 'PATCH', requestPayload);
+		}
+
+		/**
+   *	Alias function for DELETE requests.
+   *
+   *	@param string uriPattern
+   *	@param ParserParamsType uriParams
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'delete',
+		value: async function _delete(uriPattern) {
+			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var targetUrl = this.resolveRequestUri(uriPattern, uriParams, 'DELETE');
+			return await this.request(targetUrl, 'DELETE', requestPayload);
 		}
 	}, {
 		key: 'hasStoreTokenPolicy',
@@ -589,8 +823,4 @@ var Connection = function () {
 	return Connection;
 }();
 
-// @NOTE Create a "singleton" instance and export it
-
-
-var connection = new Connection();
-exports.default = connection;
+exports.default = Connection;

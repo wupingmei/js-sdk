@@ -1,11 +1,15 @@
 /* @dependencies */
-import syncify from '../syncify';
-import connection, {
+import syncify from './syncify.helper';
+import Connection, {
 	sessionStoreTokenPolicy,
 	sessionFetchTokenPolicy
 } from '../src/connection';
 
 describe('Connection versioning', () => {
+
+	let connection;
+
+	beforeAll(() => connection = new Connection());
 
 	it('can set version', () => {
 		const didSetApiVersion = connection.setApiVersion( 'v1' );
@@ -29,6 +33,10 @@ describe('Connection versioning', () => {
 
 describe('Connection policies', () => {
 
+	let connection;
+
+	beforeAll(() => connection = new Connection());
+
 	it('can set default policies', () => {
 		const attemptedSetPolicies = () => connection.setTokenPolicies( sessionStoreTokenPolicy, sessionFetchTokenPolicy );
 		expect( attemptedSetPolicies ).not.toThrowError();
@@ -43,7 +51,15 @@ describe('Connection policies', () => {
 
 describe('Connection token', () => {
 
-	beforeAll( () => connection.setTokenPolicies( sessionStoreTokenPolicy, sessionFetchTokenPolicy ) );
+	let connection;
+
+	beforeAll( () => {
+		connection = new Connection();
+		connection.setTokenPolicies(
+			sessionStoreTokenPolicy,
+			sessionFetchTokenPolicy
+		);
+	});
 
 	it('can set a valid token', async () => {
 		const didSetToken = await connection.setToken( 'valid-connection-token' );
@@ -78,6 +94,10 @@ describe('Connection token', () => {
 
 describe('Connection headers', () => {
 
+	let connection;
+
+	beforeAll(() => connection = new Connection());
+
 	it('can get headers', () => {
 		const requestHeaders = connection.getRequestHeaders();
 		expect( requestHeaders ).toBeDefined();
@@ -94,6 +114,10 @@ describe('Connection headers', () => {
 });
 
 describe('Connection options', () => {
+
+	let connection;
+
+	beforeAll(() => connection = new Connection());
 
 	it('can get options', () => {
 		const requestOptions = connection.getRequestOptions();
@@ -122,6 +146,10 @@ describe('Connection options', () => {
 });
 
 describe('Connection payload', () => {
+
+	let connection;
+
+	beforeAll(() => connection = new Connection());
 
 	it('can set payload values', () => {
 		const didSetPayload = connection.setPayload({

@@ -14,10 +14,15 @@ import type { JsonPropertyObjectType } from './generics';
 type ApiVersionType = 'v1';
 
 /**
+ *	@type RequestMethodType
+ */
+type RequestMethodType = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
+
+/**
  *	@type RequestOptionsType
  */
 type RequestOptionsType = {
-	method? : 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH',
+	method? : RequestMethodType,
 	headers? : Headers | RequestHeadersType,
 	body? : Blob | FormData | URLSearchParams | string,
 	mode? : 'same-origin' | 'cors' | 'cors-with-forced-preflight' | 'no-cors',
@@ -128,12 +133,17 @@ export async function sessionFetchTokenPolicy() : Promise<string> {
 /**
  *	SDK Connection interface, holds token store and fetch policies.
  */
-class Connection {
+export default class Connection {
 
 	/**
 	 *	@var ApiVersionType apiVersion
 	 */
 	apiVersion : ApiVersionType = 'v1';
+
+	/**
+	 *	@var string endpointUrl
+	 */
+	endpointUrl : string = 'https://api.360player.com';
 
 	/**
 	 *	@var Function storeTokenPolicyCallback
@@ -161,6 +171,11 @@ class Connection {
 	 *	@var JsonPropertyObjectType requestPayload
 	 */
 	requestPayload : JsonPropertyObjectType = {};
+
+	/**
+	 *	@var boolean shouldIncludeAuthorizationHeader
+	 */
+	shouldIncludeAuthorizationHeader : boolean = true;
 
 	/**
 	 *	Sets API version to prepend API calls with.
@@ -418,6 +433,17 @@ class Connection {
 	}
 
 	/**
+	 *	Sets API endpoint URL.
+	 *
+	 *	@param string endpointUrl
+	 *
+	 *	@return void
+	 */
+	useEndpoint( endpointUrl : string ) {
+		this.endpointUrl = endpointUrl.replace( /\/+$/, '' );
+	}
+
+	/**
 	 *	Destroys current payload.
 	 *
 	 *	@return void
@@ -427,8 +453,158 @@ class Connection {
 		this.requestPayload = emptypPayload;
 	}
 
-}
+	/**
+	 *	Resolves URI pattern and params into absolute URL and validates authorization header requirement.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param RequestMethodType requestMethod
+	 *
+	 *	@return string
+	 */
+	resolveRequestUri( uriPattern : string, uriParams : ParserParamsType = {}, requestMethod : RequestMethodType = 'GET' ) : string {
+		const relativeUriPath = urlParser.transform( `${this.getApiVersion()}/${uriPattern}`, uriParams );
+		const absolutePath = [ this.endpointUrl, relativeUriPath ].join( '/' );
 
-// @NOTE Create a "singleton" instance and export it
-const connection : Connection = new Connection();
-export default connection;
+		if ( API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod ) ) {
+			this.shouldIncludeAuthorizationHeader = false;
+		} else {
+			this.shouldIncludeAuthorizationHeader = true;
+		}
+
+		return absolutePath;
+	}
+
+	/**
+	 *	Prepares request options and headers.
+	 *
+	 *	@param RequestOptionsType requestOptions
+	 *	@param RequestHeadersType requestHeaders
+	 *
+	 *	@return Promise
+	 */
+	async prepareRequest( requestOptions : RequestOptionsType = {}, requestHeaders : RequestHeadersType = {} ) : Promise<mixed> {
+		this.setRequestOptions( requestOptions );
+
+		const authorizationHeaders : RequestHeadersType = {};
+
+		if ( this.shouldIncludeAuthorizationHeader === true ) {
+			const accessToken = await this.getToken();
+			authorizationHeaders[ 'Authorization' ] = `Bearer ${accessToken}`;
+		}
+
+		this.setRequestHeaders( Object.assign( requestHeaders, authorizationHeaders ) );
+
+		if ( this.requestOptions.method === 'GET' || this.requestOptions.method === 'HEAD' ) {
+			// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
+			const nullBody : RequestOptionsType = { body : null };
+			this.setRequestOptions( nullBody );
+		}
+
+		return Promise.resolve([
+			this.getRequestOptions(),
+			this.getRequestHeaders()
+		]);
+	}
+
+	/**
+	 *	Requests API based on set options.
+	 *
+	 *	@param string requestUrl
+	 *	@param RequestMethodType requestMethod
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async request( requestUrl : string, requestMethod : RequestMethodType = 'GET', requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const defaultRequestOptions : RequestOptionsType = { method : requestMethod };
+		const defaultRequestHeaders : RequestHeadersType = {};
+
+		this.setPayload( requestPayload );
+
+		if ( requestMethod !== 'GET' || requestMethod !== 'HEAD' ) {
+			this.requestOptions.body = this.getPayloadString();
+		}
+
+		// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
+		const [ requestOptions, requestHeaders ] = await this.prepareRequest( defaultRequestOptions, defaultRequestHeaders );
+
+		requestOptions.headers = requestHeaders;
+
+		const request = await fetch( requestUrl, requestOptions );
+		const response = await request.json();
+
+		return response;
+	}
+
+	/**
+	 *	Alias function for GET requests.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async get( uriPattern : string, uriParams : ParserParamsType = {}, requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const targetUrl : string = this.resolveRequestUri( uriPattern, uriParams, 'GET' );
+		return await this.request( targetUrl, 'GET', requestPayload );
+	}
+
+	/**
+	 *	Alias function for POST requests.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async post( uriPattern : string, uriParams : ParserParamsType = {}, requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const targetUrl : string = this.resolveRequestUri( uriPattern, uriParams, 'POST' );
+		return await this.request( targetUrl, 'POST', requestPayload );
+	}
+
+	/**
+	 *	Alias function for PUT requests.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async put( uriPattern : string, uriParams : ParserParamsType = {}, requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const targetUrl : string = this.resolveRequestUri( uriPattern, uriParams, 'PUT' );
+		return await this.request( targetUrl, 'PUT', requestPayload );
+	}
+
+	/**
+	 *	Alias function for PATCH requests.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async patch( uriPattern : string, uriParams : ParserParamsType = {}, requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const targetUrl : string = this.resolveRequestUri( uriPattern, uriParams, 'PATCH' );
+		return await this.request( targetUrl, 'PATCH', requestPayload );
+	}
+
+	/**
+	 *	Alias function for DELETE requests.
+	 *
+	 *	@param string uriPattern
+	 *	@param ParserParamsType uriParams
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async delete( uriPattern : string, uriParams : ParserParamsType = {}, requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const targetUrl : string = this.resolveRequestUri( uriPattern, uriParams, 'DELETE' );
+		return await this.request( targetUrl, 'DELETE', requestPayload );
+	}
+
+}
