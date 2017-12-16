@@ -1,9 +1,10 @@
 /* @dependencies */
 import syncify from './syncify.helper';
-import Connection, {
+import Connection from '../src/connection';
+import {
 	sessionStoreTokenPolicy,
 	sessionFetchTokenPolicy
-} from '../src/connection';
+} from '../src/policies/session';
 
 describe('Connection versioning', () => {
 

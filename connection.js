@@ -8,13 +8,13 @@ var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
 var _typeof2 = require('babel-runtime/helpers/typeof');
 
 var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
@@ -28,9 +28,6 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-exports.sessionStoreTokenPolicy = sessionStoreTokenPolicy;
-exports.sessionFetchTokenPolicy = sessionFetchTokenPolicy;
-
 var _omit = require('js-toolkit/omit');
 
 var _omit2 = _interopRequireDefault(_omit);
@@ -38,6 +35,8 @@ var _omit2 = _interopRequireDefault(_omit);
 var _parser = require('js-toolkit/url/parser');
 
 var _parser2 = _interopRequireDefault(_parser);
+
+var _policies = require('./policies');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -73,77 +72,26 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  *	@type UnauthorizedRequestsType
  */
-
-
-/* @dependencies */
 var API_VERSION_LIST = ['v1'];
 
 /**
  *	@const UnauthorizedRequestsType API_UNAUTHORIZED_REQUESTS
  */
+
+
+/* @dependencies */
 var API_UNAUTHORIZED_REQUESTS = {
 	'/auth': ['POST'],
 	'/users': ['POST']
 };
 
 /**
- *	Token reference type error.
- *	@extends Error
- */
-
-var InvalidTokenError = function (_Error) {
-	(0, _inherits3.default)(InvalidTokenError, _Error);
-
-	function InvalidTokenError() {
-		(0, _classCallCheck3.default)(this, InvalidTokenError);
-		return (0, _possibleConstructorReturn3.default)(this, (InvalidTokenError.__proto__ || Object.getPrototypeOf(InvalidTokenError)).apply(this, arguments));
-	}
-
-	return InvalidTokenError;
-}(Error);
-
-/**
- *	Invalid token policy error.
- *	@extends Error
- */
-
-
-var InvalidTokenPolicyError = function (_Error2) {
-	(0, _inherits3.default)(InvalidTokenPolicyError, _Error2);
-
-	function InvalidTokenPolicyError() {
-		(0, _classCallCheck3.default)(this, InvalidTokenPolicyError);
-		return (0, _possibleConstructorReturn3.default)(this, (InvalidTokenPolicyError.__proto__ || Object.getPrototypeOf(InvalidTokenPolicyError)).apply(this, arguments));
-	}
-
-	return InvalidTokenPolicyError;
-}(Error);
-
-/**
- *	Missing token policy error.
- *	@extends Error
- */
-
-
-var MissingTokenPolicyError = function (_Error3) {
-	(0, _inherits3.default)(MissingTokenPolicyError, _Error3);
-
-	function MissingTokenPolicyError() {
-		(0, _classCallCheck3.default)(this, MissingTokenPolicyError);
-		return (0, _possibleConstructorReturn3.default)(this, (MissingTokenPolicyError.__proto__ || Object.getPrototypeOf(MissingTokenPolicyError)).apply(this, arguments));
-	}
-
-	return MissingTokenPolicyError;
-}(Error);
-
-/**
  *	HTTP Request error.
  *	@extends Error
  */
 
-
-var RequestError = function (_Error4) {
-	(0, _inherits3.default)(RequestError, _Error4);
+var RequestError = function (_Error) {
+	(0, _inherits3.default)(RequestError, _Error);
 
 	function RequestError() {
 		(0, _classCallCheck3.default)(this, RequestError);
@@ -159,50 +107,6 @@ var RequestError = function (_Error4) {
 
 
 var urlParser = new _parser2.default();
-
-/**
- *	@private
- *	@var string __connectionAccessToken
- */
-var __connectionAccessToken = void 0;
-
-/**
- *	Default store token policy.
- *
- *	@param string accessToken
- *
- *	@return Promise
- */
-async function sessionStoreTokenPolicy(accessToken) {
-	var forceUnset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-	if (accessToken === null && forceUnset === true) {
-		__connectionAccessToken = undefined;
-		return Promise.resolve(true);
-	}
-
-	if (typeof accessToken === 'string') {
-		__connectionAccessToken = accessToken;
-		return Promise.resolve(true);
-	}
-
-	return Promise.resolve(false);
-}
-
-/**
- *	Default fetch token policy.
- *
- *	@return Promise
- */
-async function sessionFetchTokenPolicy() {
-	return new Promise(function (resolve, reject) {
-		if (typeof __connectionAccessToken === 'string' && __connectionAccessToken.length > 0) {
-			resolve(__connectionAccessToken);
-		} else {
-			reject(new InvalidTokenError('Invalid token type, expected <string> got <' + (typeof __connectionAccessToken === 'undefined' ? 'undefined' : (0, _typeof3.default)(__connectionAccessToken)) + '>.'));
-		}
-	});
-}
 
 /**
  *	SDK Connection interface, holds token store and fetch policies.
@@ -315,13 +219,13 @@ var Connection = function () {
 			if (isAsyncronousCallback(storeTokenPolicyCallback)) {
 				this.storeTokenPolicyCallback = storeTokenPolicyCallback;
 			} else {
-				throw new InvalidTokenPolicyError('Store token policy must be asyncronous function.');
+				throw new _policies.InvalidTokenPolicyError('Store token policy must be asyncronous function.');
 			}
 
 			if (isAsyncronousCallback(fetchTokenPolicyCallback)) {
 				this.fetchTokenPolicyCallback = fetchTokenPolicyCallback;
 			} else {
-				throw new InvalidTokenPolicyError('Fetch token policy must be asyncronous function.');
+				throw new _policies.InvalidTokenPolicyError('Fetch token policy must be asyncronous function.');
 			}
 		}
 
@@ -350,10 +254,10 @@ var Connection = function () {
 					// @NOTE Send "forceUnset" parameter to storeTokenPolicyCallback
 					return await this.storeTokenPolicyCallback(accessToken, true);
 				} else {
-					throw new InvalidTokenError('Invalid token type, expected <string> got <' + (typeof accessToken === 'undefined' ? 'undefined' : (0, _typeof3.default)(accessToken)) + '>.');
+					throw new _policies.InvalidTokenError('Invalid token type, expected <string> got <' + (typeof accessToken === 'undefined' ? 'undefined' : (0, _typeof3.default)(accessToken)) + '>.');
 				}
 			} else {
-				throw new MissingTokenPolicyError('Store token policy missing.');
+				throw new _policies.MissingTokenPolicyError('Store token policy missing.');
 			}
 		}
 
@@ -372,12 +276,12 @@ var Connection = function () {
 				var accessToken = await this.fetchTokenPolicyCallback();
 
 				if (typeof accessToken !== 'string') {
-					throw new InvalidTokenError('Invalid token type, expected <string> got <' + (typeof accessToken === 'undefined' ? 'undefined' : (0, _typeof3.default)(accessToken)) + '>.');
+					throw new _policies.InvalidTokenError('Invalid token type, expected <string> got <' + (typeof accessToken === 'undefined' ? 'undefined' : (0, _typeof3.default)(accessToken)) + '>.');
 				}
 
 				return accessToken;
 			} else {
-				throw new MissingTokenPolicyError('Fetch token policy missing.');
+				throw new _policies.MissingTokenPolicyError('Fetch token policy missing.');
 			}
 		}
 

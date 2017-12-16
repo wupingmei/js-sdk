@@ -1,9 +1,8 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
-exports.sessionFetchTokenPolicy = exports.sessionStoreTokenPolicy = undefined;
 
 var _connection = require('./connection');
 
@@ -15,5 +14,3 @@ var connection = new _connection2.default();
 
 /* @dependencies */
 exports.default = connection;
-exports.sessionStoreTokenPolicy = _connection.sessionStoreTokenPolicy;
-exports.sessionFetchTokenPolicy = _connection.sessionFetchTokenPolicy;

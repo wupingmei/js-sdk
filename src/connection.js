@@ -3,6 +3,11 @@
 /* @dependencies */
 import omit from 'js-toolkit/omit';
 import UrlParser, { ParserParamsType } from 'js-toolkit/url/parser';
+import {
+	InvalidTokenError,
+	InvalidTokenPolicyError,
+	MissingTokenPolicyError
+} from './policies';
 
 /* @type-dependencies */
 import type { JsonPropertyObjectType } from './generics';
@@ -60,24 +65,6 @@ const API_UNAUTHORIZED_REQUESTS : UnauthorizedRequestsType = {
 };
 
 /**
- *	Token reference type error.
- *	@extends Error
- */
-class InvalidTokenError extends Error {}
-
-/**
- *	Invalid token policy error.
- *	@extends Error
- */
-class InvalidTokenPolicyError extends Error {}
-
-/**
- *	Missing token policy error.
- *	@extends Error
- */
-class MissingTokenPolicyError extends Error {}
-
-/**
  *	HTTP Request error.
  *	@extends Error
  */
@@ -87,48 +74,6 @@ class RequestError extends Error {}
  *	@const UrlParser urlParser
  */
 const urlParser : UrlParser = new UrlParser();
-
-/**
- *	@private
- *	@var string __connectionAccessToken
- */
-let __connectionAccessToken : ?string;
-
-/**
- *	Default store token policy.
- *
- *	@param string accessToken
- *
- *	@return Promise
- */
-export async function sessionStoreTokenPolicy( accessToken : string | null, forceUnset : boolean = false ) : Promise<boolean> {
-	if ( accessToken === null && forceUnset === true ) {
-		__connectionAccessToken = undefined;
-		return Promise.resolve( true );
-	}
-
-	if ( typeof accessToken === 'string' ) {
-		__connectionAccessToken = accessToken;
-		return Promise.resolve( true );
-	}
-
-	return Promise.resolve( false );
-}
-
-/**
- *	Default fetch token policy.
- *
- *	@return Promise
- */
-export async function sessionFetchTokenPolicy() : Promise<string> {
-	return new Promise(( resolve, reject ) => {
-		if ( typeof __connectionAccessToken === 'string' && __connectionAccessToken.length > 0 ) {
-			resolve( __connectionAccessToken );
-		} else {
-			reject( new InvalidTokenError( `Invalid token type, expected <string> got <${(typeof __connectionAccessToken)}>.` ) );
-		}
-	});
-}
 
 /**
  *	SDK Connection interface, holds token store and fetch policies.
