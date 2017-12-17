@@ -491,7 +491,14 @@ export default class Connection {
 		requestOptions.headers = requestHeaders;
 
 		const request = await fetch( requestUrl, requestOptions );
+
+		if ( ! request.ok ) {
+			throw new RequestError( request.statusText );
+		}
+
 		const response = await request.json();
+
+		this.destroyPayload();
 
 		return response;
 	}

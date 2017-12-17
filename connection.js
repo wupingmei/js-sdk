@@ -606,7 +606,14 @@ var Connection = function () {
 			requestOptions.headers = requestHeaders;
 
 			var request = await fetch(requestUrl, requestOptions);
+
+			if (!request.ok) {
+				throw new RequestError(request.statusText);
+			}
+
 			var response = await request.json();
+
+			this.destroyPayload();
 
 			return response;
 		}
