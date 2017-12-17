@@ -67,6 +67,20 @@ describe('Connection token', () => {
 		expect( didSetToken ).toBe( true );
 	});
 
+	it('can validate if token is set', async () => {
+		const didSetToken = await connection.setToken( 'valid-connection-token' );
+
+		let hasToken = false;
+
+		const attemptHasToken = await syncify( async () => {
+			hasToken = await connection.hasToken();
+			return hasToken;
+		});
+
+		expect( attemptHasToken ).not.toThrowError();
+		expect( hasToken ).toBe( true );
+	})
+
 	it('throws on attempt to set invalid token', async () => {
 		const attemptedSetToken = await syncify( async () => {
 			 return await connection.setToken( /(this-is-not-a-valid-token)/ );

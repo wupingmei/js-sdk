@@ -236,6 +236,20 @@ export default class Connection {
 	}
 
 	/**
+	 *	Validates whether or not token is set, unlike {@see getToken} it does not throw an error.
+	 *
+	 *	@return Promise<boolean>
+	 */
+	async hasToken() : Promise<boolean> {
+		try {
+			const accessToken = await this.getToken();
+			return Promise.resolve( !!accessToken );
+		} catch ( error ) {
+			return Promise.resolve( false );
+		}
+	}
+
+	/**
 	 *	Alias for for unsetting token.
 	 *
 	 *	@return Promise<boolean>
