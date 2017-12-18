@@ -1,7 +1,13 @@
-# ![js-toolkit-logo](https://rawgit.com/360player/js-sdk/new-api/js-sdk--small.svg) JavaScript SDK
-[![Build Status](https://img.shields.io/travis/360player/js-sdk.svg?style=flat)](https://travis-ci.org/360player/js-sdk) [![devDependency Status](https://david-dm.org/360player/js-sdk/dev-status.svg)](https://david-dm.org/360player/js-sdk#info=devDependencies)
+<p align="center">
+	<img src="https://rawgit.com/360player/js-sdk/new-api/js-sdk__logotype.svg" width="150" height="150" alt="360Player JavaScript SDK" />
+</p>
+
+# JavaScript SDK
 
 ### JavaScript Development Kit for [360Player](https://360player.com/) public APIs.
+
+[![Build Status][build-status-badge]][build-status-url]
+[![Dependency Status][dependency-status-badge]][dependency-status-url]
 
 ## Installing
 
@@ -21,3 +27,8 @@ You can run each section individually via `yarn run lint`, `yarn run flow` or `y
 
 - Every new feature, function or class **MUST** have specs, be fully documented and _flowtyped_.
 - Every new feature, function or class **CANNOT** have any polyfills and **MUST** be ES7 compliant.
+
+[build-status-badge]: https://img.shields.io/travis/360player/js-sdk.svg?style=flat
+[build-status-url]: https://travis-ci.org/360player/js-sdk
+[dependency-status-badge]: https://david-dm.org/360player/js-sdk/dev-status.svg
+[dependency-status-url]: https://david-dm.org/360player/js-sdk#info=devDependencies
