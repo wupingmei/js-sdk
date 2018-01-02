@@ -28,7 +28,7 @@ You can run each section individually via `yarn run lint`, `yarn run flow` or `y
 - Every new feature, function or class **MUST** have specs, be fully documented and _flowtyped_.
 - Every new feature, function or class **CANNOT** have any polyfills and **MUST** be ES7 compliant.
 
-[build-status-badge]: https://img.shields.io/travis/360player/js-sdk.svg?style=flat
+[build-status-badge]: https://travis-ci.org/360player/js-sdk.svg?branch=new-api
 [build-status-url]: https://travis-ci.org/360player/js-sdk
 [dependency-status-badge]: https://david-dm.org/360player/js-sdk/dev-status.svg
 [dependency-status-url]: https://david-dm.org/360player/js-sdk#info=devDependencies
