@@ -203,7 +203,7 @@
 				<code>
 					<var>yarn</var>
 					<span class="command">add</span>
-					<span class="repository">{{repositoryUrl}}.git</span>
+					<span class="repository">{{repositoryUrl}}</span>
 					<span class="flags">--save</span>
 				</code>
 
