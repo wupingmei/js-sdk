@@ -127,6 +127,47 @@ export default class Connection {
 	shouldIncludeAuthorizationHeader : boolean = true;
 
 	/**
+	 *	@var boolean debugMode
+	 */
+	debugMode : boolean = false;
+
+	/**
+	 *	Enable debug mode.
+	 *
+	 *	@return bool
+	 */
+	enableDebugMode() : boolean {
+		this.debugMode = true;
+		return this.debugMode;
+	}
+
+	/**
+	 *	Disable debug mode.
+	 *
+	 *	@return bool
+	 */
+	disableDebugMode() : boolean {
+		this.debugMode = false;
+		return this.debugMode;
+	}
+
+	/**
+	 *	Send debug to console.
+	 *
+	 *	@param mixed object
+	 *
+	 *	@return null
+	 */
+	debug( object : mixed ) : null {
+		if ( this.debugMode === true ) {
+			// eslint-disable-next-line no-console
+			console.debug( object );
+		}
+
+		return null;
+	}
+
+	/**
 	 *	Sets API version to prepend API calls with.
 	 *
 	 *	@param ApiVersionType apiVersion
@@ -500,13 +541,15 @@ export default class Connection {
 		if ( requestMethod !== 'GET' || requestMethod !== 'HEAD' ) {
 			this.requestOptions.body = this.getPayloadString();
 		} else {
-			delete this.requestOptions;
+			delete this.requestOptions.body;
 		}
 
 		// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
 		const [ requestOptions, requestHeaders ] = await this.prepareRequest( defaultRequestOptions, defaultRequestHeaders );
 
 		requestOptions.headers = requestHeaders;
+
+		this.debug( requestOptions );
 
 		const request = await fetch( requestUrl, requestOptions );
 
@@ -515,6 +558,8 @@ export default class Connection {
 		}
 
 		const response = await request.json();
+
+		this.debug( response );
 
 		this.destroyPayload();
 

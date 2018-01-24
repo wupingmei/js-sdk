@@ -123,6 +123,7 @@ var Connection = function () {
 		};
 		this.requestPayload = {};
 		this.shouldIncludeAuthorizationHeader = true;
+		this.debugMode = false;
 	}
 
 	/**
@@ -170,9 +171,56 @@ var Connection = function () {
   */
 
 
-	(0, _createClass3.default)(Connection, [{
-		key: 'setApiVersion',
+	/**
+  *	@var boolean debugMode
+  */
 
+
+	(0, _createClass3.default)(Connection, [{
+		key: 'enableDebugMode',
+
+
+		/**
+   *	Enable debug mode.
+   *
+   *	@return bool
+   */
+		value: function enableDebugMode() {
+			this.debugMode = true;
+			return this.debugMode;
+		}
+
+		/**
+   *	Disable debug mode.
+   *
+   *	@return bool
+   */
+
+	}, {
+		key: 'disableDebugMode',
+		value: function disableDebugMode() {
+			this.debugMode = false;
+			return this.debugMode;
+		}
+
+		/**
+   *	Send debug to console.
+   *
+   *	@param mixed object
+   *
+   *	@return null
+   */
+
+	}, {
+		key: 'debug',
+		value: function debug(object) {
+			if (this.debugMode === true) {
+				// eslint-disable-next-line no-console
+				console.debug(object);
+			}
+
+			return null;
+		}
 
 		/**
    *	Sets API version to prepend API calls with.
@@ -181,6 +229,9 @@ var Connection = function () {
    *
    *	@return boolean
    */
+
+	}, {
+		key: 'setApiVersion',
 		value: function setApiVersion(apiVersion) {
 			if (API_VERSION_LIST.includes(apiVersion)) {
 				this.apiVersion = apiVersion;
@@ -615,7 +666,7 @@ var Connection = function () {
 			if (requestMethod !== 'GET' || requestMethod !== 'HEAD') {
 				this.requestOptions.body = this.getPayloadString();
 			} else {
-				delete this.requestOptions;
+				delete this.requestOptions.body;
 			}
 
 			// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
@@ -627,6 +678,8 @@ var Connection = function () {
 
 			requestOptions.headers = requestHeaders;
 
+			this.debug(requestOptions);
+
 			var request = await fetch(requestUrl, requestOptions);
 
 			if (!request.ok) {
@@ -634,6 +687,8 @@ var Connection = function () {
 			}
 
 			var response = await request.json();
+
+			this.debug(response);
 
 			this.destroyPayload();
 
