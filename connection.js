@@ -650,6 +650,8 @@ var Connection = function () {
 	}, {
 		key: 'authenticate',
 		value: async function authenticate(username, password) {
+			this.shouldIncludeAuthorizationHeader = false;
+
 			var requestPayload = { username: username, password: password };
 			var response = await this.request(this.authenticationPath, 'POST', requestPayload);
 
@@ -657,6 +659,7 @@ var Connection = function () {
 			if (response.token) {
 				// @FLOWFIXME Mixed-typehint issue.
 				await this.setToken(response.token);
+				this.shouldIncludeAuthorizationHeader = true;
 				return Promise.resolve(true);
 			}
 

@@ -528,6 +528,8 @@ export default class Connection {
 	 *	@return Promise
 	 */
 	async authenticate( username : string, password : string ) : Promise<mixed> {
+		this.shouldIncludeAuthorizationHeader = false;
+
 		const requestPayload : JsonPropertyObjectType = { username, password };
 		const response : mixed = await this.request( this.authenticationPath, 'POST', requestPayload );
 
@@ -535,6 +537,7 @@ export default class Connection {
 		if ( response.token ) {
 			// @FLOWFIXME Mixed-typehint issue.
 			await this.setToken( response.token );
+			this.shouldIncludeAuthorizationHeader = true;
 			return Promise.resolve( true );
 		}
 
