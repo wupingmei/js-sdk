@@ -665,8 +665,6 @@ var Connection = function () {
 
 			if (requestMethod !== 'GET' || requestMethod !== 'HEAD') {
 				this.requestOptions.body = this.getPayloadString();
-			} else {
-				delete this.requestOptions.body;
 			}
 
 			// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
@@ -677,6 +675,10 @@ var Connection = function () {
 			    requestHeaders = _ref2[1];
 
 			requestOptions.headers = requestHeaders;
+
+			if (requestMethod === 'GET' || requestMethod === 'HEAD') {
+				delete requestOptions.body;
+			}
 
 			this.debug(requestOptions);
 

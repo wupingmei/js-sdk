@@ -540,14 +540,16 @@ export default class Connection {
 
 		if ( requestMethod !== 'GET' || requestMethod !== 'HEAD' ) {
 			this.requestOptions.body = this.getPayloadString();
-		} else {
-			delete this.requestOptions.body;
 		}
 
 		// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
 		const [ requestOptions, requestHeaders ] = await this.prepareRequest( defaultRequestOptions, defaultRequestHeaders );
 
 		requestOptions.headers = requestHeaders;
+
+		if ( requestMethod === 'GET' || requestMethod === 'HEAD' ) {
+			delete requestOptions.body;
+		}
 
 		this.debug( requestOptions );
 
