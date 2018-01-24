@@ -60,7 +60,6 @@ const API_VERSION_LIST : Array<string> = [ 'v1' ];
  *	@const UnauthorizedRequestsType API_UNAUTHORIZED_REQUESTS
  */
 const API_UNAUTHORIZED_REQUESTS : UnauthorizedRequestsType = {
-	'/auth' : [ 'POST' ],
 	'/users' : [ 'POST' ]
 };
 
@@ -89,6 +88,11 @@ export default class Connection {
 	 *	@var string endpointUrl
 	 */
 	endpointUrl : string = 'https://api.360player.com';
+
+	/**
+	 *	@var string authenticationPath
+	 */
+	authenticationPath : string = '/auth';
 
 	/**
 	 *	@var Function storeTokenPolicyCallback
@@ -403,6 +407,17 @@ export default class Connection {
 	}
 
 	/**
+	 *	Sets API authentication path.
+	 *
+	 *	@param string authenticationPath
+	 *
+	 *	@return void
+	 */
+	useAuthenticationPath( authenticationPath : string ) {
+		this.authenticationPath = authenticationPath.replace( /\/+$/, '' );
+	}
+
+	/**
 	 *	Destroys current payload.
 	 *
 	 *	@return void
@@ -424,8 +439,9 @@ export default class Connection {
 	resolveRequestUri( uriPattern : string, uriParams : ParserParamsType = {}, requestMethod : RequestMethodType = 'GET' ) : string {
 		const relativeUriPath = urlParser.transform( `${this.getApiVersion()}/${uriPattern}`, uriParams );
 		const absolutePath = [ this.endpointUrl, relativeUriPath ].join( '/' );
+		const isUnauthenticatedRequest =  API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod );
 
-		if ( API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod ) ) {
+		if ( isUnauthenticatedRequest || uriPattern === this.authenticationPath ) {
 			this.shouldIncludeAuthorizationHeader = false;
 		} else {
 			this.shouldIncludeAuthorizationHeader = true;
@@ -501,6 +517,28 @@ export default class Connection {
 		this.destroyPayload();
 
 		return response;
+	}
+
+	/**
+	 *	Authentication request helper.
+	 *
+	 *	@param string username
+	 *	@param string password
+	 *
+	 *	@return Promise
+	 */
+	async authenticate( username : string, password : string ) : Promise<mixed> {
+		const requestPayload : JsonPropertyObjectType = { username, password };
+		const response : mixed = await this.request( this.authenticationPath, 'POST', requestPayload );
+
+		// @FLOWFIXME Mixed-typehint issue.
+		if ( response.token ) {
+			// @FLOWFIXME Mixed-typehint issue.
+			await this.setToken( response.token );
+			return Promise.resolve( true );
+		}
+
+		return Promise.reject( false );
 	}
 
 	/**

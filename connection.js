@@ -81,7 +81,6 @@ var API_VERSION_LIST = ['v1'];
 
 /* @dependencies */
 var API_UNAUTHORIZED_REQUESTS = {
-	'/auth': ['POST'],
 	'/users': ['POST']
 };
 
@@ -117,6 +116,7 @@ var Connection = function () {
 		(0, _classCallCheck3.default)(this, Connection);
 		this.apiVersion = 'v1';
 		this.endpointUrl = 'https://api.360player.com';
+		this.authenticationPath = '/auth';
 		this.requestOptions = {};
 		this.requestHeaders = {
 			'Content-Type': 'application/json'
@@ -132,6 +132,11 @@ var Connection = function () {
 
 	/**
   *	@var string endpointUrl
+  */
+
+
+	/**
+  *	@var string authenticationPath
   */
 
 
@@ -496,6 +501,20 @@ var Connection = function () {
 		}
 
 		/**
+   *	Sets API authentication path.
+   *
+   *	@param string authenticationPath
+   *
+   *	@return void
+   */
+
+	}, {
+		key: 'useAuthenticationPath',
+		value: function useAuthenticationPath(authenticationPath) {
+			this.authenticationPath = authenticationPath.replace(/\/+$/, '');
+		}
+
+		/**
    *	Destroys current payload.
    *
    *	@return void
@@ -526,8 +545,9 @@ var Connection = function () {
 
 			var relativeUriPath = urlParser.transform(this.getApiVersion() + '/' + uriPattern, uriParams);
 			var absolutePath = [this.endpointUrl, relativeUriPath].join('/');
+			var isUnauthenticatedRequest = API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod);
 
-			if (API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod)) {
+			if (isUnauthenticatedRequest || uriPattern === this.authenticationPath) {
 				this.shouldIncludeAuthorizationHeader = false;
 			} else {
 				this.shouldIncludeAuthorizationHeader = true;
@@ -616,6 +636,31 @@ var Connection = function () {
 			this.destroyPayload();
 
 			return response;
+		}
+
+		/**
+   *	Authentication request helper.
+   *
+   *	@param string username
+   *	@param string password
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'authenticate',
+		value: async function authenticate(username, password) {
+			var requestPayload = { username: username, password: password };
+			var response = await this.request(this.authenticationPath, 'POST', requestPayload);
+
+			// @FLOWFIXME Mixed-typehint issue.
+			if (response.token) {
+				// @FLOWFIXME Mixed-typehint issue.
+				await this.setToken(response.token);
+				return Promise.resolve(true);
+			}
+
+			return Promise.reject(false);
 		}
 
 		/**
