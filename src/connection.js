@@ -499,6 +499,8 @@ export default class Connection {
 
 		if ( requestMethod !== 'GET' || requestMethod !== 'HEAD' ) {
 			this.requestOptions.body = this.getPayloadString();
+		} else {
+			delete this.requestOptions;
 		}
 
 		// @FLOWFIXME Ignore linting of {@see RequestOptionsType}.
