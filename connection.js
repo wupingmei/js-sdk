@@ -698,7 +698,7 @@ var Connection = function () {
 			var request = await fetch(requestUrl, requestOptions);
 
 			if (!request.ok) {
-				this.debug(request.statusText);
+				this.debug(request);
 
 				this.lastRequestDidReject = true;
 
