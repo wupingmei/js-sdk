@@ -110,6 +110,16 @@ export default class Connection {
 	requestOptions : RequestOptionsType = {};
 
 	/**
+	 *	@var boolean lastRequestDidResolve
+	 */
+	lastRequestDidResolve : boolean;
+
+	/**
+	 *	@var boolean lastRequestDidReject
+	 */
+	lastRequestDidReject : boolean;
+
+	/**
 	 *	@var RequestHeadersType requestHeaders
 	 */
 	requestHeaders : RequestHeadersType = {
@@ -524,7 +534,7 @@ export default class Connection {
 	}
 
 	/**
-	 *	Requests API based on set options.
+	 *	Requests API based on set options. Returns Response promise.
 	 *
 	 *	@param string requestUrl
 	 *	@param RequestMethodType requestMethod
@@ -535,6 +545,9 @@ export default class Connection {
 	async request( requestUrl : string, requestMethod : RequestMethodType = 'GET', requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
 		const defaultRequestOptions : RequestOptionsType = { method : requestMethod };
 		const defaultRequestHeaders : RequestHeadersType = {};
+
+		this.lastRequestDidResolve = false;
+		this.lastRequestDidReject = false;
 
 		this.setPayload( requestPayload );
 
@@ -556,16 +569,37 @@ export default class Connection {
 		const request = await fetch( requestUrl, requestOptions );
 
 		if ( ! request.ok ) {
+			this.debug( request.statusText );
+
+			this.lastRequestDidReject = true;
+
 			throw new RequestError( request.statusText );
+		} else {
+			this.lastRequestDidResolve = true;
 		}
 
-		const response = await request.json();
-
-		this.debug( response );
+		this.debug( request );
 
 		this.destroyPayload();
 
-		return response;
+		return request;
+	}
+
+	/**
+	 *	Requests API based on set options. Returns JSON promise.
+	 *
+	 *	@param string requestUrl
+	 *	@param RequestMethodType requestMethod
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async requestJSON( requestUrl : string, requestMethod : RequestMethodType = 'GET', requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const response = await this.request( requestUrl, requestMethod, requestPayload );
+		// @FLOWFIXME Variable response is mixed, and will fail unless ignored
+		const result = await response.json();
+
+		return result;
 	}
 
 	/**

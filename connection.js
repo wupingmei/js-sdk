@@ -162,6 +162,16 @@ var Connection = function () {
 
 
 	/**
+  *	@var boolean lastRequestDidResolve
+  */
+
+
+	/**
+  *	@var boolean lastRequestDidReject
+  */
+
+
+	/**
   *	@var JsonPropertyObjectType requestPayload
   */
 
@@ -643,7 +653,7 @@ var Connection = function () {
 		}
 
 		/**
-   *	Requests API based on set options.
+   *	Requests API based on set options. Returns Response promise.
    *
    *	@param string requestUrl
    *	@param RequestMethodType requestMethod
@@ -660,6 +670,9 @@ var Connection = function () {
 
 			var defaultRequestOptions = { method: requestMethod };
 			var defaultRequestHeaders = {};
+
+			this.lastRequestDidResolve = false;
+			this.lastRequestDidReject = false;
 
 			this.setPayload(requestPayload);
 
@@ -685,16 +698,43 @@ var Connection = function () {
 			var request = await fetch(requestUrl, requestOptions);
 
 			if (!request.ok) {
+				this.debug(request.statusText);
+
+				this.lastRequestDidReject = true;
+
 				throw new RequestError(request.statusText);
+			} else {
+				this.lastRequestDidResolve = true;
 			}
 
-			var response = await request.json();
-
-			this.debug(response);
+			this.debug(request);
 
 			this.destroyPayload();
 
-			return response;
+			return request;
+		}
+
+		/**
+   *	Requests API based on set options. Returns JSON promise.
+   *
+   *	@param string requestUrl
+   *	@param RequestMethodType requestMethod
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'requestJSON',
+		value: async function requestJSON(requestUrl) {
+			var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'GET';
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var response = await this.request(requestUrl, requestMethod, requestPayload);
+			// @FLOWFIXME Variable response is mixed, and will fail unless ignored
+			var result = await response.json();
+
+			return result;
 		}
 
 		/**
