@@ -221,6 +221,10 @@
 						<img src="https://travis-ci.org/360player/js-sdk.svg?branch=master" alt="Build status" />
 					</a>
 
+					<a href="https://coveralls.io/github/360player/js-sdk?branch=master" class="badge">
+						<img src="https://coveralls.io/repos/github/360player/js-sdk/badge.svg?branch=master" alt="Coverage status" />
+					</a>
+
 					<a href="https://david-dm.org/360player/js-sdk#info=devDependencies" class="badge">
 						<img src="https://david-dm.org/360player/js-sdk/dev-status.svg" alt="Dependency status" />
 					</a>

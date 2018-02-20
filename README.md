@@ -3,6 +3,7 @@
 ### JavaScript Development Kit for [360Player](https://360player.com/) public APIs.
 
 [![Build Status][build-status-badge]][build-status-url]
+[![Coverage Status][coverage-status-badge]][coverage-status-url]
 [![Dependency Status][dependency-status-badge]][dependency-status-url]
 
 ## Installing
@@ -26,5 +27,7 @@ You can run each section individually via `yarn run lint`, `yarn run flow` or `y
 
 [build-status-badge]: https://travis-ci.org/360player/js-sdk.svg?branch=new-api
 [build-status-url]: https://travis-ci.org/360player/js-sdk
+[coverage-status-badge]: https://coveralls.io/repos/github/360player/js-toolkit/badge.svg?branch=master
+[coverage-status-url]: https://coveralls.io/github/360player/js-toolkit?branch=master
 [dependency-status-badge]: https://david-dm.org/360player/js-sdk/dev-status.svg
 [dependency-status-url]: https://david-dm.org/360player/js-sdk#info=devDependencies
