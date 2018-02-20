@@ -1,7 +1,3 @@
-<p align="center">
-	<img src="https://rawgit.com/360player/js-sdk/new-api/js-sdk__logotype.svg" width="150" height="150" alt="360Player JavaScript SDK" />
-</p>
-
 # JavaScript SDK
 
 ### JavaScript Development Kit for [360Player](https://360player.com/) public APIs.
