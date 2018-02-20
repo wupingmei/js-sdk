@@ -6,6 +6,7 @@ npm-debug.log*
 !/log/.keep
 /tmp
 dump.rdb
+.coveralls.yml
 
 # Runtime data
 pids
