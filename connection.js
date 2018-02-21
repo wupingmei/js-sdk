@@ -809,10 +809,11 @@ var Connection = function () {
 			if (result.token) {
 				// @FLOWFIXME Mixed-typehint issue.
 				await this.setToken(response.token);
-				return Promise.resolve(true);
+
+				return result;
 			}
 
-			return Promise.reject(false);
+			return Promise.reject(new Error('Could not authenticate.'));
 		}
 
 		/**

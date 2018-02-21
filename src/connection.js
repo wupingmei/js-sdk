@@ -658,11 +658,12 @@ export default class Connection {
 		// @FLOWFIXME Mixed-typehint issue.
 		if ( result.token ) {
 			// @FLOWFIXME Mixed-typehint issue.
-			await this.setToken( response.token );
-			return Promise.resolve( true );
+			await this.setToken( result.token );
+
+			return response;
 		}
 
-		return Promise.reject( false );
+		return Promise.reject( new Error( 'Could not authenticate.' ) );
 	}
 
 	/**
