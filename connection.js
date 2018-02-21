@@ -614,7 +614,7 @@ var Connection = function () {
 			var uriParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 			var requestMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
 
-			var relativeUriPath = urlParser.transform(this.getApiVersion() + '/' + uriPattern, uriParams);
+			var relativeUriPath = urlParser.transform(uriPattern, uriParams);
 			var isUnauthenticatedRequest = API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod);
 
 			if (isUnauthenticatedRequest || uriPattern === this.authenticationPath) {
@@ -704,7 +704,7 @@ var Connection = function () {
 
 			this.debug(requestOptions);
 
-			requestUrl = [this.endpointUrl, requestUrl].join('/').replace(/([^:])(\/\/+)/g, '$1/');
+			requestUrl = [this.endpointUrl, this.getApiVersion(), requestUrl].join('/').replace(/([^:])(\/\/+)/g, '$1/');
 			var request = await fetch(requestUrl, requestOptions);
 
 			if (!request.ok) {
@@ -808,9 +808,9 @@ var Connection = function () {
 			// @FLOWFIXME Mixed-typehint issue.
 			if (result.token) {
 				// @FLOWFIXME Mixed-typehint issue.
-				await this.setToken(response.token);
+				await this.setToken(result.token);
 
-				return result;
+				return response;
 			}
 
 			return Promise.reject(new Error('Could not authenticate.'));

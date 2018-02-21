@@ -494,7 +494,7 @@ export default class Connection {
 	 *	@return string
 	 */
 	resolveRequestUri( uriPattern : string, uriParams : ParserParamsType = {}, requestMethod : RequestMethodType = 'GET' ) : string {
-		const relativeUriPath = urlParser.transform( `${this.getApiVersion()}/${uriPattern}`, uriParams );
+		const relativeUriPath = urlParser.transform( uriPattern, uriParams );
 		const isUnauthenticatedRequest =  API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod );
 
 		if ( isUnauthenticatedRequest || uriPattern === this.authenticationPath ) {
@@ -571,7 +571,7 @@ export default class Connection {
 
 		this.debug( requestOptions );
 
-		requestUrl = [ this.endpointUrl, requestUrl ].join( '/' ).replace( /([^:])(\/\/+)/g, '$1/' );
+		requestUrl = [ this.endpointUrl, this.getApiVersion(), requestUrl ].join( '/' ).replace( /([^:])(\/\/+)/g, '$1/' );
 		const request = await fetch( requestUrl , requestOptions );
 
 		if ( ! request.ok ) {
