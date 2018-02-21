@@ -802,8 +802,11 @@ var Connection = function () {
 			var authenticationPath = this.resolveRequestUri(this.authenticationPath, {}, 'POST');
 			var response = await this.request(authenticationPath, 'POST', requestPayload);
 
+			// @FLOWFIXME
+			var result = await response.json();
+
 			// @FLOWFIXME Mixed-typehint issue.
-			if (response.token) {
+			if (result.token) {
 				// @FLOWFIXME Mixed-typehint issue.
 				await this.setToken(response.token);
 				return Promise.resolve(true);

@@ -652,8 +652,11 @@ export default class Connection {
 		const authenticationPath = this.resolveRequestUri( this.authenticationPath, {}, 'POST' );
 		const response : mixed = await this.request( authenticationPath, 'POST', requestPayload );
 
+		// @FLOWFIXME
+		const result : mixed = await response.json();
+
 		// @FLOWFIXME Mixed-typehint issue.
-		if ( response.token ) {
+		if ( result.token ) {
 			// @FLOWFIXME Mixed-typehint issue.
 			await this.setToken( response.token );
 			return Promise.resolve( true );
