@@ -2,6 +2,7 @@
 
 /* @dependencies */
 import omit from 'js-toolkit/omit';
+import WeakStorage from 'js-toolkit/storage/weakstorage';
 import UrlParser, { ParserParamsType } from 'js-toolkit/url/parser';
 import {
 	InvalidTokenError,
@@ -140,6 +141,11 @@ export default class Connection {
 	 *	@var boolean debugMode
 	 */
 	debugMode : boolean = false;
+
+	/**
+	 *	@var WeakStorage cache
+	 */
+	cache = new WeakStorage();
 
 	/**
 	 *	Enable debug mode.
@@ -489,7 +495,6 @@ export default class Connection {
 	 */
 	resolveRequestUri( uriPattern : string, uriParams : ParserParamsType = {}, requestMethod : RequestMethodType = 'GET' ) : string {
 		const relativeUriPath = urlParser.transform( `${this.getApiVersion()}/${uriPattern}`, uriParams );
-		const absolutePath = [ this.endpointUrl, relativeUriPath ].join( '/' );
 		const isUnauthenticatedRequest =  API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod );
 
 		if ( isUnauthenticatedRequest || uriPattern === this.authenticationPath ) {
@@ -498,7 +503,7 @@ export default class Connection {
 			this.shouldIncludeAuthorizationHeader = true;
 		}
 
-		return absolutePath;
+		return relativeUriPath;
 	}
 
 	/**
@@ -566,7 +571,8 @@ export default class Connection {
 
 		this.debug( requestOptions );
 
-		const request = await fetch( requestUrl, requestOptions );
+		requestUrl = [ this.endpointUrl, requestUrl ].join( '/' ).replace( /([^:])(\/\/+)/g, '$1/' );
+		const request = await fetch( requestUrl , requestOptions );
 
 		if ( ! request.ok ) {
 			this.debug( request );
@@ -600,6 +606,37 @@ export default class Connection {
 		const result = await response.json();
 
 		return result;
+	}
+
+	/**
+	 *	Works as {@see Connection.request} but caches the response.
+	 *
+	 *	@param string requestUrl
+	 *	@param RequestMethodType requestMethod
+	 *	@param JsonPropertyObjectType requestPayload
+	 *
+	 *	@return Promise
+	 */
+	async cachedRequest( requestUrl : string, requestMethod : RequestMethodType = 'GET', requestPayload : JsonPropertyObjectType = {} ) : Promise<mixed> {
+		const cachedResult = this.cache.getItem( `${requestMethod} ${requestUrl}` );
+
+		if ( cachedResult !== null ) {
+			this.lastRequestDidResolve = true;
+			this.lastRequestDidReject = false;
+
+			return Promise.resolve({
+				json : () => cachedResult
+			});
+		}
+
+		const response = await this.request( requestUrl, requestMethod, requestPayload );
+
+		// @FLOWFIXME Variable response is mixed, and will fail unless ignored
+		const result = await response.json();
+
+		this.cache.setItem( `${requestMethod} ${requestUrl}`, result );
+
+		return response;
 	}
 
 	/**

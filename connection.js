@@ -32,6 +32,10 @@ var _omit = require('js-toolkit/omit');
 
 var _omit2 = _interopRequireDefault(_omit);
 
+var _weakstorage = require('js-toolkit/storage/weakstorage');
+
+var _weakstorage2 = _interopRequireDefault(_weakstorage);
+
 var _parser = require('js-toolkit/url/parser');
 
 var _parser2 = _interopRequireDefault(_parser);
@@ -72,14 +76,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
  *	@type UnauthorizedRequestsType
  */
+
+
+/* @dependencies */
 var API_VERSION_LIST = ['v1'];
 
 /**
  *	@const UnauthorizedRequestsType API_UNAUTHORIZED_REQUESTS
  */
-
-
-/* @dependencies */
 var API_UNAUTHORIZED_REQUESTS = {
 	'/users': ['POST']
 };
@@ -124,6 +128,7 @@ var Connection = function () {
 		this.requestPayload = {};
 		this.shouldIncludeAuthorizationHeader = true;
 		this.debugMode = false;
+		this.cache = new _weakstorage2.default();
 	}
 
 	/**
@@ -183,6 +188,11 @@ var Connection = function () {
 
 	/**
   *	@var boolean debugMode
+  */
+
+
+	/**
+  *	@var WeakStorage cache
   */
 
 
@@ -605,7 +615,6 @@ var Connection = function () {
 			var requestMethod = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'GET';
 
 			var relativeUriPath = urlParser.transform(this.getApiVersion() + '/' + uriPattern, uriParams);
-			var absolutePath = [this.endpointUrl, relativeUriPath].join('/');
 			var isUnauthenticatedRequest = API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod);
 
 			if (isUnauthenticatedRequest || uriPattern === this.authenticationPath) {
@@ -614,7 +623,7 @@ var Connection = function () {
 				this.shouldIncludeAuthorizationHeader = true;
 			}
 
-			return absolutePath;
+			return relativeUriPath;
 		}
 
 		/**
@@ -695,6 +704,7 @@ var Connection = function () {
 
 			this.debug(requestOptions);
 
+			requestUrl = [this.endpointUrl, requestUrl].join('/').replace(/([^:])(\/\/+)/g, '$1/');
 			var request = await fetch(requestUrl, requestOptions);
 
 			if (!request.ok) {
@@ -735,6 +745,45 @@ var Connection = function () {
 			var result = await response.json();
 
 			return result;
+		}
+
+		/**
+   *	Works as {@see Connection.request} but caches the response.
+   *
+   *	@param string requestUrl
+   *	@param RequestMethodType requestMethod
+   *	@param JsonPropertyObjectType requestPayload
+   *
+   *	@return Promise
+   */
+
+	}, {
+		key: 'cachedRequest',
+		value: async function cachedRequest(requestUrl) {
+			var requestMethod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'GET';
+			var requestPayload = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+			var cachedResult = this.cache.getItem(requestMethod + ' ' + requestUrl);
+
+			if (cachedResult !== null) {
+				this.lastRequestDidResolve = true;
+				this.lastRequestDidReject = false;
+
+				return Promise.resolve({
+					json: function json() {
+						return cachedResult;
+					}
+				});
+			}
+
+			var response = await this.request(requestUrl, requestMethod, requestPayload);
+
+			// @FLOWFIXME Variable response is mixed, and will fail unless ignored
+			var result = await response.json();
+
+			this.cache.setItem(requestMethod + ' ' + requestUrl, result);
+
+			return response;
 		}
 
 		/**
