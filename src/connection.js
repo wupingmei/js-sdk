@@ -133,11 +133,6 @@ export default class Connection {
 	requestPayload : JsonPropertyObjectType = {};
 
 	/**
-	 *	@var boolean shouldIncludeAuthorizationHeader
-	 */
-	shouldIncludeAuthorizationHeader : boolean = true;
-
-	/**
 	 *	@var boolean debugMode
 	 */
 	debugMode : boolean = false;
@@ -497,12 +492,6 @@ export default class Connection {
 		const relativeUriPath = urlParser.transform( uriPattern, uriParams );
 		const isUnauthenticatedRequest =  API_UNAUTHORIZED_REQUESTS.hasOwnProperty( uriPattern ) && API_UNAUTHORIZED_REQUESTS[ uriPattern ].includes( requestMethod );
 
-		if ( isUnauthenticatedRequest || uriPattern === this.authenticationPath ) {
-			this.shouldIncludeAuthorizationHeader = false;
-		} else {
-			this.shouldIncludeAuthorizationHeader = true;
-		}
-
 		return relativeUriPath;
 	}
 
@@ -519,8 +508,9 @@ export default class Connection {
 
 		const authorizationHeaders : RequestHeadersType = {};
 
-		if ( this.shouldIncludeAuthorizationHeader === true ) {
-			const accessToken = await this.getToken();
+		const accessToken = await this.getToken();
+
+		if ( accessToken.length > 0 ) {
 			authorizationHeaders[ 'Authorization' ] = `Bearer ${accessToken}`;
 		}
 

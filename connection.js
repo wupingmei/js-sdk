@@ -126,7 +126,6 @@ var Connection = function () {
 			'Content-Type': 'application/json'
 		};
 		this.requestPayload = {};
-		this.shouldIncludeAuthorizationHeader = true;
 		this.debugMode = false;
 		this.cache = new _weakstorage2.default();
 	}
@@ -178,11 +177,6 @@ var Connection = function () {
 
 	/**
   *	@var JsonPropertyObjectType requestPayload
-  */
-
-
-	/**
-  *	@var boolean shouldIncludeAuthorizationHeader
   */
 
 
@@ -617,12 +611,6 @@ var Connection = function () {
 			var relativeUriPath = urlParser.transform(uriPattern, uriParams);
 			var isUnauthenticatedRequest = API_UNAUTHORIZED_REQUESTS.hasOwnProperty(uriPattern) && API_UNAUTHORIZED_REQUESTS[uriPattern].includes(requestMethod);
 
-			if (isUnauthenticatedRequest || uriPattern === this.authenticationPath) {
-				this.shouldIncludeAuthorizationHeader = false;
-			} else {
-				this.shouldIncludeAuthorizationHeader = true;
-			}
-
 			return relativeUriPath;
 		}
 
@@ -645,8 +633,9 @@ var Connection = function () {
 
 			var authorizationHeaders = {};
 
-			if (this.shouldIncludeAuthorizationHeader === true) {
-				var accessToken = await this.getToken();
+			var accessToken = await this.getToken();
+
+			if (accessToken.length > 0) {
 				authorizationHeaders['Authorization'] = 'Bearer ' + accessToken;
 			}
 

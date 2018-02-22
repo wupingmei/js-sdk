@@ -58,7 +58,7 @@ export async function sessionFetchTokenPolicy() : Promise<string> {
 	const accessToken = storageAdapter().getItem( storageKey );
 
 	return new Promise(( resolve, reject ) => {
-		if ( typeof accessToken === 'string' && accessToken.length > 0 ) {
+		if ( typeof accessToken === 'string' ) {
 			resolve( accessToken );
 		} else {
 			reject( new InvalidTokenError( `Invalid token type, expected <string> got <${(typeof accessToken)}>.` ) );
