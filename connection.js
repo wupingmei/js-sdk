@@ -166,16 +166,6 @@ var Connection = function () {
 
 
 	/**
-  *	@var boolean lastRequestDidResolve
-  */
-
-
-	/**
-  *	@var boolean lastRequestDidReject
-  */
-
-
-	/**
   *	@var JsonPropertyObjectType requestPayload
   */
 
@@ -669,9 +659,6 @@ var Connection = function () {
 			var defaultRequestOptions = { method: requestMethod };
 			var defaultRequestHeaders = {};
 
-			this.lastRequestDidResolve = false;
-			this.lastRequestDidReject = false;
-
 			this.setPayload(requestPayload);
 
 			if (requestMethod !== 'GET' || requestMethod !== 'HEAD') {
@@ -695,16 +682,6 @@ var Connection = function () {
 
 			requestUrl = [this.endpointUrl, this.getApiVersion(), requestUrl].join('/').replace(/([^:])(\/\/+)/g, '$1/');
 			var request = await fetch(requestUrl, requestOptions);
-
-			if (!request.ok) {
-				this.debug(request);
-
-				this.lastRequestDidReject = true;
-
-				throw new RequestError(request.statusText);
-			} else {
-				this.lastRequestDidResolve = true;
-			}
 
 			this.debug(request);
 
@@ -755,9 +732,6 @@ var Connection = function () {
 			var cachedResult = this.cache.getItem(requestMethod + ' ' + requestUrl);
 
 			if (cachedResult !== null) {
-				this.lastRequestDidResolve = true;
-				this.lastRequestDidReject = false;
-
 				return Promise.resolve({
 					json: function json() {
 						return cachedResult;

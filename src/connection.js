@@ -111,16 +111,6 @@ export default class Connection {
 	requestOptions : RequestOptionsType = {};
 
 	/**
-	 *	@var boolean lastRequestDidResolve
-	 */
-	lastRequestDidResolve : boolean;
-
-	/**
-	 *	@var boolean lastRequestDidReject
-	 */
-	lastRequestDidReject : boolean;
-
-	/**
 	 *	@var RequestHeadersType requestHeaders
 	 */
 	requestHeaders : RequestHeadersType = {
@@ -541,9 +531,6 @@ export default class Connection {
 		const defaultRequestOptions : RequestOptionsType = { method : requestMethod };
 		const defaultRequestHeaders : RequestHeadersType = {};
 
-		this.lastRequestDidResolve = false;
-		this.lastRequestDidReject = false;
-
 		this.setPayload( requestPayload );
 
 		if ( requestMethod !== 'GET' || requestMethod !== 'HEAD' ) {
@@ -563,16 +550,6 @@ export default class Connection {
 
 		requestUrl = [ this.endpointUrl, this.getApiVersion(), requestUrl ].join( '/' ).replace( /([^:])(\/\/+)/g, '$1/' );
 		const request = await fetch( requestUrl , requestOptions );
-
-		if ( ! request.ok ) {
-			this.debug( request );
-
-			this.lastRequestDidReject = true;
-
-			throw new RequestError( request.statusText );
-		} else {
-			this.lastRequestDidResolve = true;
-		}
 
 		this.debug( request );
 
@@ -611,9 +588,6 @@ export default class Connection {
 		const cachedResult = this.cache.getItem( `${requestMethod} ${requestUrl}` );
 
 		if ( cachedResult !== null ) {
-			this.lastRequestDidResolve = true;
-			this.lastRequestDidReject = false;
-
 			return Promise.resolve({
 				json : () => cachedResult
 			});
